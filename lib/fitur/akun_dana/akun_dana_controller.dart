@@ -82,6 +82,28 @@ class AkunDanaController extends GetxController {
     }
   }
 
+  Future<bool> perbaruiNama(AkunDanaData akun, String namaBaru) async {
+    galat.value = null;
+    final bersih = namaBaru.trim();
+    if (bersih.isEmpty) {
+      galat.value = 'Nama akun tidak boleh kosong.';
+      return false;
+    }
+    if (bersih == akun.nama) return true;
+    if (menyimpan.value) return false;
+
+    menyimpan.value = true;
+    try {
+      await repositori.perbaruiNama(akun.id, bersih);
+      return true;
+    } catch (_) {
+      galat.value = 'Gagal memperbarui nama akun. Silakan coba lagi.';
+      return false;
+    } finally {
+      menyimpan.value = false;
+    }
+  }
+
   Future<bool> nonaktifkan(AkunDanaData akun) async {
     if (menyimpan.value) return false;
     menyimpan.value = true;

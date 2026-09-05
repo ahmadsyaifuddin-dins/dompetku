@@ -4,6 +4,7 @@ import '../fitur/akun_dana/halaman_akun_dana.dart';
 import '../fitur/beranda/halaman_beranda.dart';
 import '../fitur/kategori/halaman_kategori.dart';
 import '../fitur/pengaturan/halaman_pengaturan.dart';
+import '../fitur/pengaturan/halaman_tentang.dart';
 import '../fitur/piutang/halaman_detail_piutang.dart';
 import '../fitur/piutang/halaman_piutang.dart';
 import '../fitur/piutang/halaman_tambah_piutang.dart';
@@ -29,6 +30,7 @@ class Rute {
   static const String bacaGambar = '/baca-gambar';
   static const String akunDana = '/akun-dana';
   static const String kategori = '/kategori';
+  static const String tentang = '/tentang';
 
   static final pages = [
     GetPage(
@@ -78,6 +80,10 @@ class Rute {
     GetPage(
       name: kategori,
       page: () => const HalamanKategori(),
+    ),
+    GetPage(
+      name: tentang,
+      page: () => const HalamanTentang(),
     ),
   ];
 }

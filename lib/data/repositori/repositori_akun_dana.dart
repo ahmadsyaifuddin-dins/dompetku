@@ -60,6 +60,17 @@ class RepositoriAkunDana {
         );
   }
 
+  Future<void> perbaruiNama(String id, String nama) async {
+    await (_database.update(_database.akunDana)
+          ..where((tabel) => tabel.id.equals(id)))
+        .write(
+      AkunDanaCompanion(
+        nama: Value(nama),
+        diperbaruiPada: Value(DateTime.now()),
+      ),
+    );
+  }
+
   Future<void> nonaktifkan(String id) async {
     await (_database.update(_database.akunDana)
           ..where((tabel) => tabel.id.equals(id)))

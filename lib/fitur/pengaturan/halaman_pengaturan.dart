@@ -99,21 +99,13 @@ class HalamanPengaturan extends StatelessWidget {
                   title: const Text('Informasi Aplikasi'),
                   subtitle: const Text('Versi DompetKu'),
                   trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () => _belumTersedia(),
+                  onTap: () => Get.toNamed(Rute.tentang),
                 ),
               ],
             ),
           ),
         ],
       ),
-    );
-  }
-
-  void _belumTersedia() {
-    Get.snackbar(
-      'Segera hadir',
-      'Fitur ini masih dalam pengembangan.',
-      snackPosition: SnackPosition.BOTTOM,
     );
   }
 }
