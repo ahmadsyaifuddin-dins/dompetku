@@ -69,6 +69,30 @@ class RepositoriTransaksi {
         );
   }
 
+  Future<void> perbarui({
+    required String id,
+    required String akunDanaId,
+    required String? kategoriId,
+    required JenisTransaksi jenis,
+    required int nominal,
+    required DateTime tanggal,
+    required String? catatan,
+  }) async {
+    await (_database.update(_database.transaksi)
+          ..where((tabel) => tabel.id.equals(id)))
+        .write(
+      TransaksiCompanion(
+        akunDanaId: Value(akunDanaId),
+        kategoriId: Value(kategoriId),
+        jenis: Value(jenis),
+        nominal: Value(nominal),
+        tanggal: Value(tanggal),
+        catatan: Value(catatan),
+        diperbaruiPada: Value(DateTime.now()),
+      ),
+    );
+  }
+
   Future<void> hapus(String id) async {
     await (_database.delete(_database.transaksi)
           ..where((tabel) => tabel.id.equals(id)))

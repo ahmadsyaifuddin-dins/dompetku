@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../data/database/database.dart';
 import '../data/repositori/repositori_akun_dana.dart';
 import '../data/repositori/repositori_kategori.dart';
+import '../data/repositori/repositori_piutang.dart';
 import '../data/repositori/repositori_transaksi.dart';
 import '../data/repositori/repositori_transfer.dart';
 import '../inti/layanan/layanan_preferensi.dart';
@@ -19,6 +20,7 @@ class Dependensi {
     Get.put<RepositoriKategori>(RepositoriKategori(database));
     Get.put<RepositoriTransaksi>(RepositoriTransaksi(database));
     Get.put<RepositoriTransfer>(RepositoriTransfer(database));
+    Get.put<RepositoriPiutang>(RepositoriPiutang(database));
     Get.put<PengontrolTema>(PengontrolTema(Get.find<LayananPreferensi>()));
 
     final layananSaldo = Get.put<LayananSaldo>(
@@ -27,6 +29,7 @@ class Dependensi {
         repositoriKategori: Get.find<RepositoriKategori>(),
         repositoriTransaksi: Get.find<RepositoriTransaksi>(),
         repositoriTransfer: Get.find<RepositoriTransfer>(),
+        repositoriPiutang: Get.find<RepositoriPiutang>(),
       ),
     );
     layananSaldo.mulai();

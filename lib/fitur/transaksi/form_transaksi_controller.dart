@@ -17,6 +17,7 @@ class FormTransaksiController extends GetxController {
   final RepositoriKategori repositoriKategori;
 
   final JenisTransaksi jenis;
+  final TransaksiData? sedangMengedit;
   final nominalController = TextEditingController();
   final catatanController = TextEditingController();
   final akunId = RxnString();
@@ -36,9 +37,20 @@ class FormTransaksiController extends GetxController {
     required this.repositoriTransaksi,
     required this.repositoriAkunDana,
     required this.repositoriKategori,
-  });
+    TransaksiData? sedangMengedit,
+  }) : sedangMengedit = sedangMengedit {
+    if (sedangMengedit != null) {
+      nominalController.text = formatNominalInput(
+        sedangMengedit.nominal.toString(),
+      );
+      akunId.value = sedangMengedit.akunDanaId;
+      kategoriId.value = sedangMengedit.kategoriId;
+      tanggal.value = sedangMengedit.tanggal;
+      catatanController.text = sedangMengedit.catatan ?? '';
+    }
+  }
 
-  bool get bacaSajaAkun => opsiAkun.length <= 1;
+  bool get sedangEdit => sedangMengedit != null;
 
   @override
   void onInit() {
@@ -79,14 +91,27 @@ class FormTransaksiController extends GetxController {
     menyimpan.value = true;
     try {
       final catatan = catatanController.text.trim();
-      await repositoriTransaksi.tambah(
-        akunDanaId: akunId.value!,
-        kategoriId: kategoriId.value,
-        jenis: jenis,
-        nominal: nominal!,
-        tanggal: tanggal.value,
-        catatan: catatan.isEmpty ? null : catatan,
-      );
+      final catatanAkhir = catatan.isEmpty ? null : catatan;
+      if (sedangEdit) {
+        await repositoriTransaksi.perbarui(
+          id: sedangMengedit!.id,
+          akunDanaId: akunId.value!,
+          kategoriId: kategoriId.value,
+          jenis: jenis,
+          nominal: nominal!,
+          tanggal: tanggal.value,
+          catatan: catatanAkhir,
+        );
+      } else {
+        await repositoriTransaksi.tambah(
+          akunDanaId: akunId.value!,
+          kategoriId: kategoriId.value,
+          jenis: jenis,
+          nominal: nominal!,
+          tanggal: tanggal.value,
+          catatan: catatanAkhir,
+        );
+      }
       return true;
     } catch (_) {
       galat.value = 'Gagal menyimpan transaksi. Silakan coba lagi.';

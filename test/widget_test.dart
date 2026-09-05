@@ -2,6 +2,7 @@ import 'package:dompetku/data/database/database.dart';
 import 'package:dompetku/data/model/enum_dompetku.dart';
 import 'package:dompetku/data/repositori/repositori_akun_dana.dart';
 import 'package:dompetku/data/repositori/repositori_kategori.dart';
+import 'package:dompetku/data/repositori/repositori_piutang.dart';
 import 'package:dompetku/data/repositori/repositori_transaksi.dart';
 import 'package:dompetku/data/repositori/repositori_transfer.dart';
 import 'package:dompetku/inti/layanan/layanan_preferensi.dart';
@@ -42,6 +43,7 @@ Future<LingkunganUji> buatLingkunganUji() async {
   Get.put<RepositoriKategori>(RepositoriKategori(database));
   Get.put<RepositoriTransaksi>(RepositoriTransaksi(database));
   Get.put<RepositoriTransfer>(RepositoriTransfer(database));
+  Get.put<RepositoriPiutang>(RepositoriPiutang(database));
   Get.put<LayananPreferensi>(LayananPreferensi(preferensi));
   Get.put<PengontrolTema>(PengontrolTema(Get.find<LayananPreferensi>()));
 
@@ -51,6 +53,7 @@ Future<LingkunganUji> buatLingkunganUji() async {
       repositoriKategori: Get.find<RepositoriKategori>(),
       repositoriTransaksi: Get.find<RepositoriTransaksi>(),
       repositoriTransfer: Get.find<RepositoriTransfer>(),
+      repositoriPiutang: Get.find<RepositoriPiutang>(),
     ),
   );
   layananSaldo.mulai();

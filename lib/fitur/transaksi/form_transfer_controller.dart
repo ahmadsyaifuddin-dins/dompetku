@@ -13,6 +13,7 @@ class FormTransferController extends GetxController {
   final RepositoriTransfer repositoriTransfer;
   final RepositoriAkunDana repositoriAkunDana;
 
+  final TransferData? sedangMengedit;
   final nominalController = TextEditingController();
   final catatanController = TextEditingController();
   final akunAsalId = RxnString();
@@ -28,7 +29,20 @@ class FormTransferController extends GetxController {
   FormTransferController({
     required this.repositoriTransfer,
     required this.repositoriAkunDana,
-  });
+    TransferData? sedangMengedit,
+  }) : sedangMengedit = sedangMengedit {
+    if (sedangMengedit != null) {
+      nominalController.text = formatNominalInput(
+        sedangMengedit.nominal.toString(),
+      );
+      akunAsalId.value = sedangMengedit.akunAsalId;
+      akunTujuanId.value = sedangMengedit.akunTujuanId;
+      tanggal.value = sedangMengedit.tanggal;
+      catatanController.text = sedangMengedit.catatan ?? '';
+    }
+  }
+
+  bool get sedangEdit => sedangMengedit != null;
 
   @override
   void onInit() {
@@ -75,13 +89,25 @@ class FormTransferController extends GetxController {
     menyimpan.value = true;
     try {
       final catatan = catatanController.text.trim();
-      await repositoriTransfer.tambah(
-        akunAsalId: akunAsalId.value!,
-        akunTujuanId: akunTujuanId.value!,
-        nominal: nominal!,
-        tanggal: tanggal.value,
-        catatan: catatan.isEmpty ? null : catatan,
-      );
+      final catatanAkhir = catatan.isEmpty ? null : catatan;
+      if (sedangEdit) {
+        await repositoriTransfer.perbarui(
+          id: sedangMengedit!.id,
+          akunAsalId: akunAsalId.value!,
+          akunTujuanId: akunTujuanId.value!,
+          nominal: nominal!,
+          tanggal: tanggal.value,
+          catatan: catatanAkhir,
+        );
+      } else {
+        await repositoriTransfer.tambah(
+          akunAsalId: akunAsalId.value!,
+          akunTujuanId: akunTujuanId.value!,
+          nominal: nominal!,
+          tanggal: tanggal.value,
+          catatan: catatanAkhir,
+        );
+      }
       return true;
     } catch (_) {
       galat.value = 'Gagal menyimpan transfer. Silakan coba lagi.';

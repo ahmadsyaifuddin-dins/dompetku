@@ -4,7 +4,10 @@ import '../fitur/akun_dana/halaman_akun_dana.dart';
 import '../fitur/beranda/halaman_beranda.dart';
 import '../fitur/kategori/halaman_kategori.dart';
 import '../fitur/pengaturan/halaman_pengaturan.dart';
+import '../fitur/piutang/halaman_detail_piutang.dart';
 import '../fitur/piutang/halaman_piutang.dart';
+import '../fitur/piutang/halaman_tambah_piutang.dart';
+import '../fitur/transaksi/halaman_baca_gambar.dart';
 import '../fitur/transaksi/halaman_form_transaksi.dart';
 import '../fitur/transaksi/halaman_form_transfer.dart';
 import '../fitur/transaksi/halaman_transaksi.dart';
@@ -21,6 +24,9 @@ class Rute {
 
   static const String tambahTransaksi = '/tambah-transaksi';
   static const String tambahTransfer = '/tambah-transfer';
+  static const String tambahPiutang = '/tambah-piutang';
+  static const String detailPiutang = '/detail-piutang';
+  static const String bacaGambar = '/baca-gambar';
   static const String akunDana = '/akun-dana';
   static const String kategori = '/kategori';
 
@@ -52,6 +58,18 @@ class Rute {
     GetPage(
       name: tambahTransfer,
       page: () => const HalamanFormTransfer(),
+    ),
+    GetPage(
+      name: tambahPiutang,
+      page: () => const HalamanTambahPiutang(),
+    ),
+    GetPage(
+      name: detailPiutang,
+      page: () => const HalamanDetailPiutang(),
+    ),
+    GetPage(
+      name: bacaGambar,
+      page: () => const HalamanBacaGambar(),
     ),
     GetPage(
       name: akunDana,

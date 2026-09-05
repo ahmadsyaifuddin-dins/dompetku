@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../data/database/database.dart';
 import '../../data/model/enum_dompetku.dart';
 import '../../komponen/masukan/masukan_nominal.dart';
 import '../../komponen/masukan/pilih_tanggal.dart';
@@ -13,14 +14,19 @@ class HalamanFormTransaksi extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final jenis = Get.arguments as JenisTransaksi;
+    final argumen = Get.arguments;
+    final sedangMengedit = argumen is TransaksiData ? argumen : null;
+    final jenis = sedangMengedit?.jenis ?? (argumen as JenisTransaksi);
     final pengontrol = Get.put(FormTransaksiController(
       jenis: jenis,
       repositoriTransaksi: Get.find(),
       repositoriAkunDana: Get.find(),
       repositoriKategori: Get.find(),
+      sedangMengedit: sedangMengedit,
     ));
-    final judul = jenis == JenisTransaksi.pemasukan ? 'Pemasukan' : 'Pengeluaran';
+    final judul =
+        jenis == JenisTransaksi.pemasukan ? 'Pemasukan' : 'Pengeluaran';
+    final labelSimpan = sedangMengedit == null ? 'Simpan $judul' : 'Perbarui';
     final sesuaiJenis = jenis == JenisTransaksi.pemasukan
         ? Icons.add_circle_rounded
         : Icons.remove_circle_rounded;
@@ -114,7 +120,7 @@ class HalamanFormTransaksi extends StatelessWidget {
             }),
             Obx(
               () => TombolUtama(
-                label: 'Simpan $judul',
+                label: labelSimpan,
                 ikon: Icons.check_rounded,
                 pemuatan: pengontrol.menyimpan.value,
                 onDitekan: () async {
@@ -123,8 +129,10 @@ class HalamanFormTransaksi extends StatelessWidget {
                   tampilkanSnackbarDompetku(
                     jenis: JenisSnackbar.sukses,
                     judul: 'Berhasil',
-                    pesan: '$judul sebesar '
-                        '${pengontrol.nominalController.text} tersimpan.',
+                    pesan: sedangMengedit == null
+                        ? '$judul sebesar '
+                            '${pengontrol.nominalController.text} tersimpan.'
+                        : '$judul diperbarui.',
                   );
                   Get.back();
                 },

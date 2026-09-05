@@ -10,6 +10,7 @@ import '../../komponen/kartu/kartu_entri_histori.dart';
 import '../../komponen/kartu/kartu_saldo.dart';
 import '../../komponen/keadaan/keadaan_kosong.dart';
 import '../../komponen/pemuatan/pemuatan_shimmer.dart';
+import '../transaksi/papan_aksi_entri.dart';
 
 class HalamanBeranda extends StatelessWidget {
   const HalamanBeranda({super.key});
@@ -73,7 +74,10 @@ class HalamanBeranda extends StatelessWidget {
                 ...histori.take(5).map(
                       (entri) => Padding(
                         padding: const EdgeInsets.only(bottom: 8),
-                        child: KartuEntriHistori(entri: entri),
+                        child: KartuEntriHistori(
+                          entri: entri,
+                          onTap: () => bukaAksiEntri(context, entri),
+                        ),
                       ),
                     ),
             ],

@@ -6,6 +6,7 @@ import '../../data/database/database.dart';
 import '../../data/model/ringkasan_entri.dart';
 import '../../data/repositori/repositori_akun_dana.dart';
 import '../../data/repositori/repositori_kategori.dart';
+import '../../data/repositori/repositori_piutang.dart';
 import '../../data/repositori/repositori_transaksi.dart';
 import '../../data/repositori/repositori_transfer.dart';
 import '../utilitas/gabung_entri_histori.dart';
@@ -16,11 +17,13 @@ class LayananSaldo extends GetxService {
   final RepositoriKategori repositoriKategori;
   final RepositoriTransaksi repositoriTransaksi;
   final RepositoriTransfer repositoriTransfer;
+  final RepositoriPiutang repositoriPiutang;
 
   final akun = <AkunDanaData>[].obs;
   final kategori = <KategoriData>[].obs;
   final transaksi = <TransaksiData>[].obs;
   final transfer = <TransferData>[].obs;
+  final riwayatPiutang = <RiwayatPiutangData>[].obs;
   final saldoPerAkun = <String, int>{}.obs;
   final pemuatan = true.obs;
 
@@ -28,12 +31,14 @@ class LayananSaldo extends GetxService {
   StreamSubscription<List<KategoriData>>? _langgananKategori;
   StreamSubscription<List<TransaksiData>>? _langgananTransaksi;
   StreamSubscription<List<TransferData>>? _langgananTransfer;
+  StreamSubscription<List<RiwayatPiutangData>>? _langgananRiwayatPiutang;
 
   LayananSaldo({
     required this.repositoriAkun,
     required this.repositoriKategori,
     required this.repositoriTransaksi,
     required this.repositoriTransfer,
+    required this.repositoriPiutang,
   });
 
   int get totalSaldo {
@@ -73,6 +78,12 @@ class LayananSaldo extends GetxService {
       transfer.value = data;
       _sinkronkanSaldo();
     });
+    _langgananRiwayatPiutang = repositoriPiutang
+        .pantauSemuaRiwayat()
+        .listen((data) {
+      riwayatPiutang.value = data;
+      _sinkronkanSaldo();
+    });
   }
 
   void _sinkronkanSaldo() {
@@ -83,6 +94,7 @@ class LayananSaldo extends GetxService {
         idAkun: a.id,
         transaksi: transaksi,
         transfer: transfer,
+        riwayatPiutang: riwayatPiutang,
       );
     }
     saldoPerAkun.value = peta;
@@ -95,6 +107,7 @@ class LayananSaldo extends GetxService {
     _langgananKategori?.cancel();
     _langgananTransaksi?.cancel();
     _langgananTransfer?.cancel();
+    _langgananRiwayatPiutang?.cancel();
     mulai();
   }
 
@@ -104,6 +117,7 @@ class LayananSaldo extends GetxService {
     _langgananKategori?.cancel();
     _langgananTransaksi?.cancel();
     _langgananTransfer?.cancel();
+    _langgananRiwayatPiutang?.cancel();
     super.onClose();
   }
 }

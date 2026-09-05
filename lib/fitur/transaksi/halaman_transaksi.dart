@@ -9,6 +9,7 @@ import '../../komponen/keadaan/keadaan_kosong.dart';
 import '../../komponen/pemuatan/pemuatan_shimmer.dart';
 import '../../utama/rute.dart';
 import 'histori_controller.dart';
+import 'papan_aksi_entri.dart';
 
 class HalamanTransaksi extends StatelessWidget {
   const HalamanTransaksi({super.key});
@@ -22,6 +23,7 @@ class HalamanTransaksi extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Transaksi')),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: null,
         onPressed: () => _bukaMenuTambah(context),
         icon: const Icon(Icons.add_rounded),
         label: const Text('Catat'),
@@ -96,7 +98,10 @@ class HalamanTransaksi extends StatelessWidget {
                 itemCount: histori.length,
                 itemBuilder: (context, indeks) => Padding(
                   padding: const EdgeInsets.only(bottom: 8),
-                  child: KartuEntriHistori(entri: histori[indeks]),
+                  child: KartuEntriHistori(
+                    entri: histori[indeks],
+                    onTap: () => bukaAksiEntri(context, histori[indeks]),
+                  ),
                 ),
               );
             }),
@@ -172,9 +177,20 @@ class HalamanTransaksi extends StatelessWidget {
             _aksiMenu(
               context,
               ikon: Icons.account_balance_wallet_rounded,
-              label: 'Piutang',
-              terkunci: true,
-              onTap: () {},
+              label: 'Pinjaman',
+              onTap: () {
+                Navigator.pop(sheetContext);
+                Get.toNamed(Rute.tambahPiutang);
+              },
+            ),
+            _aksiMenu(
+              context,
+              ikon: Icons.document_scanner_outlined,
+              label: 'Baca dari Gambar',
+              onTap: () {
+                Navigator.pop(sheetContext);
+                Get.toNamed(Rute.bacaGambar);
+              },
             ),
             _aksiMenu(
               context,

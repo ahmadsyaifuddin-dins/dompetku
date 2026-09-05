@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../data/database/database.dart';
 import '../../komponen/masukan/masukan_nominal.dart';
 import '../../komponen/masukan/pilih_tanggal.dart';
 import '../../komponen/snackbar/snackbar_dompetku.dart';
@@ -12,9 +13,12 @@ class HalamanFormTransfer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final argumen = Get.arguments;
+    final sedangMengedit = argumen is TransferData ? argumen : null;
     final pengontrol = Get.put(FormTransferController(
       repositoriTransfer: Get.find(),
       repositoriAkunDana: Get.find(),
+      sedangMengedit: sedangMengedit,
     ));
 
     return Scaffold(
@@ -103,7 +107,7 @@ class HalamanFormTransfer extends StatelessWidget {
             }),
             Obx(
               () => TombolUtama(
-                label: 'Simpan Transfer',
+                label: sedangMengedit == null ? 'Simpan Transfer' : 'Perbarui',
                 ikon: Icons.swap_horiz_rounded,
                 pemuatan: pengontrol.menyimpan.value,
                 onDitekan: () async {
@@ -112,8 +116,10 @@ class HalamanFormTransfer extends StatelessWidget {
                   tampilkanSnackbarDompetku(
                     jenis: JenisSnackbar.sukses,
                     judul: 'Berhasil',
-                    pesan: 'Transfer sebesar '
-                        '${pengontrol.nominalController.text} tersimpan.',
+                    pesan: sedangMengedit == null
+                        ? 'Transfer sebesar '
+                            '${pengontrol.nominalController.text} tersimpan.'
+                        : 'Transfer diperbarui.',
                   );
                   Get.back();
                 },

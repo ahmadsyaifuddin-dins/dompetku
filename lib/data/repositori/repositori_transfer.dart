@@ -37,6 +37,28 @@ class RepositoriTransfer {
         );
   }
 
+  Future<void> perbarui({
+    required String id,
+    required String akunAsalId,
+    required String akunTujuanId,
+    required int nominal,
+    required DateTime tanggal,
+    required String? catatan,
+  }) async {
+    await (_database.update(_database.transfer)
+          ..where((tabel) => tabel.id.equals(id)))
+        .write(
+      TransferCompanion(
+        akunAsalId: Value(akunAsalId),
+        akunTujuanId: Value(akunTujuanId),
+        nominal: Value(nominal),
+        tanggal: Value(tanggal),
+        catatan: Value(catatan),
+        diperbaruiPada: Value(DateTime.now()),
+      ),
+    );
+  }
+
   Future<void> hapus(String id) async {
     await (_database.delete(_database.transfer)
           ..where((tabel) => tabel.id.equals(id)))
