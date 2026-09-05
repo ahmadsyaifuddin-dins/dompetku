@@ -1,7 +1,11 @@
 import 'package:dompetku/data/database/database.dart';
 import 'package:dompetku/data/model/enum_dompetku.dart';
 import 'package:dompetku/data/repositori/repositori_akun_dana.dart';
+import 'package:dompetku/data/repositori/repositori_kategori.dart';
+import 'package:dompetku/data/repositori/repositori_transaksi.dart';
+import 'package:dompetku/data/repositori/repositori_transfer.dart';
 import 'package:dompetku/inti/layanan/layanan_preferensi.dart';
+import 'package:dompetku/inti/layanan/layanan_saldo.dart';
 import 'package:dompetku/inti/tema/pengontrol_tema.dart';
 import 'package:dompetku/inti/utilitas/format_rupiah.dart';
 import 'package:dompetku/utama/aplikasi.dart';
@@ -11,12 +15,14 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> aturLingkunganUji() async {
   Get.reset();
   SharedPreferences.setMockInitialValues({});
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+  await initializeDateFormatting('id_ID', null);
 }
 
 class LingkunganUji {
@@ -33,8 +39,21 @@ Future<LingkunganUji> buatLingkunganUji() async {
 
   Get.put<DompetKuDatabase>(database);
   Get.put<RepositoriAkunDana>(RepositoriAkunDana(database));
+  Get.put<RepositoriKategori>(RepositoriKategori(database));
+  Get.put<RepositoriTransaksi>(RepositoriTransaksi(database));
+  Get.put<RepositoriTransfer>(RepositoriTransfer(database));
   Get.put<LayananPreferensi>(LayananPreferensi(preferensi));
   Get.put<PengontrolTema>(PengontrolTema(Get.find<LayananPreferensi>()));
+
+  final layananSaldo = Get.put<LayananSaldo>(
+    LayananSaldo(
+      repositoriAkun: Get.find<RepositoriAkunDana>(),
+      repositoriKategori: Get.find<RepositoriKategori>(),
+      repositoriTransaksi: Get.find<RepositoriTransaksi>(),
+      repositoriTransfer: Get.find<RepositoriTransfer>(),
+    ),
+  );
+  layananSaldo.mulai();
 
   return LingkunganUji(
     aplikasi: const AplikasiDompetKu(),
@@ -153,6 +172,71 @@ void main() {
           tester.widget<GetMaterialApp>(find.byType(GetMaterialApp));
       expect(aplikasi.themeMode, ThemeMode.dark);
 
+      await lingkungan.database.close();
+      await tester.pump();
+    });
+
+    testWidgets('menambah akun dana melalui halaman Akun Dana',
+        (tester) async {
+      final lingkungan = await buatLingkunganUji();
+      await tester.pumpWidget(lingkungan.aplikasi);
+      await tester.pumpAndSettle();
+
+      Get.find<KontrolInduk>().ubahIndeks(3);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Akun Dana'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Tambah'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField).at(0), 'Cash');
+      await tester.enterText(find.byType(TextField).at(1), '500000');
+      await tester.tap(find.text('Simpan Akun'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Cash'), findsOneWidget);
+      expect(find.text('Rp500.000'), findsOneWidget);
+
+      final layananSaldo = Get.find<LayananSaldo>();
+      expect(layananSaldo.totalSaldo, 500000);
+
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pumpAndSettle();
+      await lingkungan.database.close();
+      await tester.pump();
+    });
+
+    testWidgets('menambah pengeluaran mengubah total saldo', (tester) async {
+      final lingkungan = await buatLingkunganUji();
+      await tester.pumpWidget(lingkungan.aplikasi);
+      await tester.pumpAndSettle();
+
+      Get.find<KontrolInduk>().ubahIndeks(1);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Catat'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Pengeluaran').last);
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField).at(0), '100000');
+      await tester.tap(find.byType(DropdownButtonFormField<String>).at(1));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(DropdownMenuItem<String>).last);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Simpan Pengeluaran'));
+      await tester.pumpAndSettle();
+
+      final layananSaldo = Get.find<LayananSaldo>();
+      expect(layananSaldo.totalSaldo, -100000);
+      expect(layananSaldo.pemuatan.value, isFalse);
+
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pumpAndSettle();
       await lingkungan.database.close();
       await tester.pump();
     });

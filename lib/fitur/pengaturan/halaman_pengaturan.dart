@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../data/model/enum_dompetku.dart';
 import '../../inti/tema/pengontrol_tema.dart';
+import '../../utama/rute.dart';
 
 class HalamanPengaturan extends StatelessWidget {
   const HalamanPengaturan({super.key});
@@ -82,7 +83,7 @@ class HalamanPengaturan extends StatelessWidget {
                   title: const Text('Akun Dana'),
                   subtitle: const Text('Kelola sumber dana'),
                   trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () => _belumTersedia(),
+                  onTap: () => Get.toNamed(Rute.akunDana),
                 ),
                 const Divider(height: 1),
                 ListTile(
@@ -90,7 +91,7 @@ class HalamanPengaturan extends StatelessWidget {
                   title: const Text('Kategori'),
                   subtitle: const Text('Kelola kategori transaksi'),
                   trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () => _belumTersedia(),
+                  onTap: () => Get.toNamed(Rute.kategori),
                 ),
                 const Divider(height: 1),
                 ListTile(

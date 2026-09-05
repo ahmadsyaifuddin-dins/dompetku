@@ -26,6 +26,14 @@ class RepositoriAkunDana {
     return query.get();
   }
 
+  Stream<List<AkunDanaData>> pantauSemua() {
+    final query = _database.select(_database.akunDana)
+      ..orderBy([
+        (tabel) => OrderingTerm.asc(tabel.nama),
+      ]);
+    return query.watch();
+  }
+
   Future<AkunDanaData?> ambilBerdasarkanId(String id) async {
     final query = _database.select(_database.akunDana)
       ..where((tabel) => tabel.id.equals(id));

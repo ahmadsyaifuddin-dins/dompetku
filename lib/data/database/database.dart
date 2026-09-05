@@ -157,6 +157,7 @@ class DompetKuDatabase extends _$DompetKuDatabase {
         },
         beforeOpen: (detail) async {
           await customStatement('PRAGMA foreign_keys = ON');
+          await _isiKategoriDefaultJikaKosong();
         },
       );
 
@@ -170,5 +171,54 @@ class DompetKuDatabase extends _$DompetKuDatabase {
         diperbaruiPada: DateTime.now(),
       ),
     );
+    await _simpanKategori();
+  }
+
+  Future<void> _isiKategoriDefaultJikaKosong() async {
+    final jumlah = await kategori.count().getSingle();
+    if (jumlah == 0) {
+      await _simpanKategori();
+    }
+  }
+
+  Future<void> _simpanKategori() async {
+    final daftar = <KategoriCompanion>[
+      for (final nama in _kategoriPemasukan)
+        KategoriCompanion.insert(
+          id: const Uuid().v4(),
+          nama: nama,
+          jenis: JenisTransaksi.pemasukan,
+          ikon: const Value(null),
+        ),
+      for (final nama in _kategoriPengeluaran)
+        KategoriCompanion.insert(
+          id: const Uuid().v4(),
+          nama: nama,
+          jenis: JenisTransaksi.pengeluaran,
+          ikon: const Value(null),
+        ),
+    ];
+    for (final item in daftar) {
+      await into(kategori).insert(item);
+    }
   }
 }
+
+const _kategoriPemasukan = [
+  'Gaji',
+  'Uang saku',
+  'Bonus',
+  'Hadiah',
+  'Lainnya',
+];
+
+const _kategoriPengeluaran = [
+  'Makanan',
+  'Transportasi',
+  'Belanja',
+  'Tagihan',
+  'Hiburan',
+  'Pendidikan',
+  'Kesehatan',
+  'Lainnya',
+];

@@ -3,61 +3,127 @@ import 'package:get/get.dart';
 
 import '../../data/database/database.dart';
 import '../../data/model/enum_dompetku.dart';
+import '../../inti/konstanta/ikon_map.dart';
+import '../../inti/layanan/layanan_saldo.dart';
 import '../../inti/utilitas/format_rupiah.dart';
+import '../../komponen/kartu/kartu_entri_histori.dart';
 import '../../komponen/kartu/kartu_saldo.dart';
 import '../../komponen/keadaan/keadaan_kosong.dart';
 import '../../komponen/pemuatan/pemuatan_shimmer.dart';
-import 'beranda_controller.dart';
 
 class HalamanBeranda extends StatelessWidget {
   const HalamanBeranda({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final pengontrol = Get.isRegistered<BerandaController>()
-        ? Get.find<BerandaController>()
-        : Get.put(BerandaController(Get.find()));
+    final layananSaldo = Get.find<LayananSaldo>();
     final tema = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(title: const Text('DompetKu')),
       body: RefreshIndicator(
-        onRefresh: () async => pengontrol.muatUlang(),
+        onRefresh: () async => layananSaldo.muatUlang(),
         child: Obx(() {
-          if (pengontrol.loading.value) {
-            return _TampilanPemuatan(tema: tema);
+          if (layananSaldo.pemuatan.value) {
+            return const _TampilanPemuatan();
           }
-          if (pengontrol.galat.value) {
+          if (layananSaldo.akun.isEmpty) {
             return KeadaanKosong(
-              ikon: Icons.wifi_off_rounded,
-              judul: 'Terjadi kesalahan',
-              pesan: 'Gagal mengambil data. Periksa kembali lalu coba lagi.',
-              aksi: TextButton.icon(
-                onPressed: pengontrol.muatUlang,
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Coba lagi'),
-              ),
-            );
-          }
-          if (pengontrol.akun.isEmpty) {
-            return KeadaanKosong(
-              ikon: Icons.receipt_long_rounded,
-              judul: 'Belum ada transaksi',
+              ikon: Icons.account_balance_wallet_rounded,
+              judul: 'Belum ada akun dana',
               pesan:
-                  'Mulai catat pemasukan atau pengeluaran untuk melihat '
-                  'ringkasan keuanganmu.',
+                  'Tambahkan akun dana untuk mulai mencatat transaksimu.',
             );
           }
-          return _TampilanData(pengontrol: pengontrol, tema: tema);
+          final histori = layananSaldo.histori;
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              KartuSaldo(
+                judul: 'Total Saldo',
+                nominal: formatRupiah(layananSaldo.totalSaldo),
+                ikon: Icons.account_balance_wallet_rounded,
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Akun Dana',
+                style: tema.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 12),
+              ...layananSaldo.akun.map(
+                (akun) => _kartuAkun(tema, layananSaldo, akun),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Aktivitas Terbaru',
+                style: tema.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 12),
+              if (histori.isEmpty)
+                KeadaanKosong(
+                  ikon: Icons.receipt_long_rounded,
+                  judul: 'Belum ada transaksi',
+                  pesan:
+                      'Mulai catat pemasukan atau pengeluaran untuk melihat '
+                      'ringkasan keuanganmu.',
+                )
+              else
+                ...histori.take(5).map(
+                      (entri) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: KartuEntriHistori(entri: entri),
+                      ),
+                    ),
+            ],
+          );
         }),
       ),
     );
   }
+
+  Widget _kartuAkun(
+    ThemeData tema,
+    LayananSaldo layanan,
+    AkunDanaData akun,
+  ) {
+    final saldo = layanan.saldoPerAkun[akun.id] ?? akun.saldoAwal;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Card(
+        child: ListTile(
+          leading: CircleAvatar(
+            backgroundColor: tema.colorScheme.primaryContainer,
+            foregroundColor: tema.colorScheme.onPrimaryContainer,
+            child: Icon(_ikonAkun(akun.jenis)),
+          ),
+          title: Text(akun.nama),
+          subtitle: Text(_labelJenis(akun.jenis)),
+          trailing: Text(
+            formatRupiah(saldo),
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+        ),
+      ),
+    );
+  }
+
+  IconData _ikonAkun(JenisAkun jenis) {
+    return ikonUntukAkunDana(jenis.nama);
+  }
+
+  String _labelJenis(JenisAkun jenis) {
+    return switch (jenis) {
+      JenisAkun.cash => 'Tunai',
+      JenisAkun.bank => 'Bank',
+      JenisAkun.ewallet => 'E-Wallet',
+    };
+  }
 }
 
 class _TampilanPemuatan extends StatelessWidget {
-  final ThemeData tema;
-  const _TampilanPemuatan({required this.tema});
+  const _TampilanPemuatan();
 
   @override
   Widget build(BuildContext context) {
@@ -68,12 +134,15 @@ class _TampilanPemuatan extends StatelessWidget {
           anak: BlokSkeleton(tinggi: 120, radius: 20),
         ),
         const SizedBox(height: 24),
-        BlokSkeletonTeks(),
+        const BlokSkeletonTeks(),
         const SizedBox(height: 16),
-        ...List.generate(3, (_) => const Padding(
-              padding: EdgeInsets.only(bottom: 12),
-              child: KartuSkeletonTransaksi(),
-            )),
+        ...List.generate(
+          3,
+          (_) => const Padding(
+            padding: EdgeInsets.only(bottom: 12),
+            child: KartuSkeletonTransaksi(),
+          ),
+        ),
       ],
     );
   }
@@ -94,71 +163,5 @@ class BlokSkeletonTeks extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class _TampilanData extends StatelessWidget {
-  final BerandaController pengontrol;
-  final ThemeData tema;
-
-  const _TampilanData({required this.pengontrol, required this.tema});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        KartuSaldo(
-          judul: 'Total Saldo',
-          nominal: formatRupiah(pengontrol.totalSaldo),
-          ikon: Icons.account_balance_wallet_rounded,
-        ),
-        const SizedBox(height: 24),
-        Text(
-          'Akun Dana',
-          style: tema.textTheme.titleMedium
-              ?.copyWith(fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: 12),
-        ...pengontrol.akun.map(_kartuAkun),
-      ],
-    );
-  }
-
-  Widget _kartuAkun(AkunDanaData akun) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Card(
-        child: ListTile(
-          leading: CircleAvatar(
-            backgroundColor: tema.colorScheme.primaryContainer,
-            foregroundColor: tema.colorScheme.onPrimaryContainer,
-            child: Icon(_ikonAkun(akun.jenis)),
-          ),
-          title: Text(akun.nama),
-          subtitle: Text(_labelJenis(akun.jenis)),
-          trailing: Text(
-            formatRupiah(akun.saldoAwal),
-            style: const TextStyle(fontWeight: FontWeight.w700),
-          ),
-        ),
-      ),
-    );
-  }
-
-  IconData _ikonAkun(JenisAkun jenis) {
-    return switch (jenis) {
-      JenisAkun.cash => Icons.payments_rounded,
-      JenisAkun.bank => Icons.account_balance_rounded,
-      JenisAkun.ewallet => Icons.smartphone_rounded,
-    };
-  }
-
-  String _labelJenis(JenisAkun jenis) {
-    return switch (jenis) {
-      JenisAkun.cash => 'Tunai',
-      JenisAkun.bank => 'Bank',
-      JenisAkun.ewallet => 'E-Wallet',
-    };
   }
 }
