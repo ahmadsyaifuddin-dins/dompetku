@@ -1,30 +1,160 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:dompetku/data/database/database.dart';
+import 'package:dompetku/data/model/enum_dompetku.dart';
+import 'package:dompetku/data/repositori/repositori_akun_dana.dart';
+import 'package:dompetku/inti/layanan/layanan_preferensi.dart';
+import 'package:dompetku/inti/tema/pengontrol_tema.dart';
+import 'package:dompetku/inti/utilitas/format_rupiah.dart';
+import 'package:dompetku/utama/aplikasi.dart';
+import 'package:dompetku/utama/kontrol_induk.dart';
+import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:dompetku/main.dart';
+Future<void> aturLingkunganUji() async {
+  Get.reset();
+  SharedPreferences.setMockInitialValues({});
+  driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+}
+
+class LingkunganUji {
+  final Widget aplikasi;
+  final DompetKuDatabase database;
+
+  LingkunganUji({required this.aplikasi, required this.database});
+}
+
+Future<LingkunganUji> buatLingkunganUji() async {
+  await aturLingkunganUji();
+  final database = DompetKuDatabase(NativeDatabase.memory());
+  final preferensi = await SharedPreferences.getInstance();
+
+  Get.put<DompetKuDatabase>(database);
+  Get.put<RepositoriAkunDana>(RepositoriAkunDana(database));
+  Get.put<LayananPreferensi>(LayananPreferensi(preferensi));
+  Get.put<PengontrolTema>(PengontrolTema(Get.find<LayananPreferensi>()));
+
+  return LingkunganUji(
+    aplikasi: const AplikasiDompetKu(),
+    database: database,
+  );
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('Utilitas', () {
+    test('formatRupiah memformat nominal dengan benar', () {
+      expect(formatRupiah(500000), 'Rp500.000');
+      expect(formatRupiah(0), 'Rp0');
+      expect(formatRupiah(12500), 'Rp12.500');
+    });
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  group('PengontrolTema', () {
+    test('mode tema default adalah system', () async {
+      await aturLingkunganUji();
+      final preferensi = await SharedPreferences.getInstance();
+      final pengontrol = PengontrolTema(LayananPreferensi(preferensi));
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+      expect(pengontrol.modeTema, ModeTema.system);
+      expect(pengontrol.themeMode, ThemeMode.system);
+    });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    test('aturModeTema menyimpan dan mengubah themeMode', () async {
+      await aturLingkunganUji();
+      final preferensi = await SharedPreferences.getInstance();
+      final pengontrol = PengontrolTema(LayananPreferensi(preferensi));
+
+      await pengontrol.aturModeTema(ModeTema.gelap);
+
+      expect(pengontrol.modeTema, ModeTema.gelap);
+      expect(pengontrol.themeMode, ThemeMode.dark);
+    });
+  });
+
+  group('RepositoriAkunDana', () {
+    test('database baru memiliki SeaBank sebagai akun default', () async {
+      final database = DompetKuDatabase(NativeDatabase.memory());
+      final repositori = RepositoriAkunDana(database);
+
+      final akun = await repositori.ambilSemuaAktif();
+
+      expect(akun, hasLength(1));
+      expect(akun.first.nama, 'SeaBank');
+      expect(akun.first.jenis, JenisAkun.bank);
+      expect(akun.first.aktif, isTrue);
+
+      await database.close();
+    });
+
+    test('nonaktifkan mengubah status aktif menjadi false', () async {
+      final database = DompetKuDatabase(NativeDatabase.memory());
+      final repositori = RepositoriAkunDana(database);
+
+      final akun = await repositori.ambilSemuaAktif();
+      await repositori.nonaktifkan(akun.first.id);
+
+      final tersisa = await repositori.ambilSemuaAktif();
+      expect(tersisa, isEmpty);
+
+      await database.close();
+    });
+  });
+
+  group('Widget', () {
+    testWidgets('beranda menampilkan saldo dari akun default',
+        (tester) async {
+      final lingkungan = await buatLingkunganUji();
+      await tester.pumpWidget(lingkungan.aplikasi);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Total Saldo'), findsOneWidget);
+      expect(find.text('Akun Dana'), findsOneWidget);
+      expect(find.text('SeaBank'), findsOneWidget);
+      expect(find.text('Rp0'), findsNWidgets(2));
+
+      await lingkungan.database.close();
+      await tester.pump();
+    });
+
+    testWidgets('indeks navigasi menampilkan halaman pengaturan',
+        (tester) async {
+      final lingkungan = await buatLingkunganUji();
+      await tester.pumpWidget(lingkungan.aplikasi);
+      await tester.pumpAndSettle();
+
+      final kontrol = Get.find<KontrolInduk>();
+      kontrol.ubahIndeks(3);
+      await tester.pumpAndSettle();
+
+      expect(kontrol.indeks.value, 3);
+
+      final navigasi =
+          tester.widget<NavigationBar>(find.byType(NavigationBar));
+      expect(navigasi.selectedIndex, 3);
+      expect(find.text('Tampilan'), findsOneWidget);
+
+      await lingkungan.database.close();
+      await tester.pump();
+    });
+
+    testWidgets('perubahan tema mencerminkan mode gelap pada aplikasi',
+        (tester) async {
+      final lingkungan = await buatLingkunganUji();
+      await tester.pumpWidget(lingkungan.aplikasi);
+      await tester.pumpAndSettle();
+
+      final pengontrolTema = Get.find<PengontrolTema>();
+      await pengontrolTema.aturModeTema(ModeTema.gelap);
+      await tester.pumpAndSettle();
+
+      final aplikasi =
+          tester.widget<GetMaterialApp>(find.byType(GetMaterialApp));
+      expect(aplikasi.themeMode, ThemeMode.dark);
+
+      await lingkungan.database.close();
+      await tester.pump();
+    });
   });
 }
