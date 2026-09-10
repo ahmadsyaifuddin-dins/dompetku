@@ -5,7 +5,9 @@ import '../fitur/beranda/halaman_beranda.dart';
 import '../fitur/pengaturan/halaman_pengaturan.dart';
 import '../fitur/piutang/halaman_piutang.dart';
 import '../fitur/transaksi/halaman_transaksi.dart';
+import '../komponen/navigasi/bilah_navigasi.dart';
 import 'kontrol_induk.dart';
+import 'rute.dart';
 
 class HalamanInduk extends StatelessWidget {
   final int indeksAwal;
@@ -31,31 +33,10 @@ class HalamanInduk extends StatelessWidget {
             HalamanPengaturan(),
           ],
         ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: indeks,
-          onDestinationSelected: kontrol.ubahIndeks,
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home_rounded),
-              label: 'Beranda',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.receipt_long_outlined),
-              selectedIcon: Icon(Icons.receipt_long_rounded),
-              label: 'Transaksi',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.people_alt_outlined),
-              selectedIcon: Icon(Icons.people_alt_rounded),
-              label: 'Piutang',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.settings_outlined),
-              selectedIcon: Icon(Icons.settings_rounded),
-              label: 'Pengaturan',
-            ),
-          ],
+        bottomNavigationBar: BilahNavigasiDompetku(
+          indeks: indeks,
+          padaPilih: kontrol.ubahIndeks,
+          padaBacaGambar: () => Get.toNamed(Rute.bacaGambar),
         ),
       );
     });

@@ -10,6 +10,7 @@ import 'package:dompetku/inti/layanan/layanan_preferensi.dart';
 import 'package:dompetku/inti/layanan/layanan_saldo.dart';
 import 'package:dompetku/inti/tema/pengontrol_tema.dart';
 import 'package:dompetku/inti/utilitas/format_rupiah.dart';
+import 'package:dompetku/komponen/navigasi/bilah_navigasi.dart';
 import 'package:dompetku/utama/aplikasi.dart';
 import 'package:dompetku/utama/kontrol_induk.dart';
 import 'package:drift/drift.dart' show driftRuntimeOptions;
@@ -167,8 +168,8 @@ void main() {
       expect(kontrol.indeks.value, 3);
 
       final navigasi =
-          tester.widget<NavigationBar>(find.byType(NavigationBar));
-      expect(navigasi.selectedIndex, 3);
+          tester.widget<BilahNavigasiDompetku>(find.byType(BilahNavigasiDompetku));
+      expect(navigasi.indeks, 3);
       expect(find.text('Tampilan'), findsOneWidget);
 
       await lingkungan.database.close();
@@ -233,7 +234,7 @@ void main() {
       Get.find<KontrolInduk>().ubahIndeks(1);
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Catat'));
+      await tester.tap(find.byTooltip('Catat'));
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Pengeluaran').last);

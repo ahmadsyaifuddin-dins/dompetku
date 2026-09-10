@@ -72,7 +72,7 @@ class PemuatanStartup extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.account_balance_wallet_rounded,
-                size: 64, color: warnaUtama),
+                size: 64, color: warnaEmerald),
             const SizedBox(height: 24),
             const PemuatanSpinkit(ukuran: 40),
             const SizedBox(height: 24),

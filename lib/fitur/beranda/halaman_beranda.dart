@@ -14,6 +14,7 @@ import '../../komponen/kartu/kartu_entri_histori.dart';
 import '../../komponen/kartu/kartu_saldo.dart';
 import '../../komponen/keadaan/keadaan_kosong.dart';
 import '../../komponen/pemuatan/pemuatan_shimmer.dart';
+import '../../utama/kontrol_induk.dart';
 import '../transaksi/papan_aksi_entri.dart';
 
 class HalamanBeranda extends StatelessWidget {
@@ -25,182 +26,303 @@ class HalamanBeranda extends StatelessWidget {
     final tema = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('DompetKu')),
-      body: RefreshIndicator(
-        onRefresh: () async => layananSaldo.muatUlang(),
-        child: Obx(() {
-          if (layananSaldo.pemuatan.value) {
-            return const _TampilanPemuatan();
-          }
-          if (layananSaldo.akun.isEmpty) {
-            return KeadaanKosong(
-              ikon: Icons.account_balance_wallet_rounded,
-              judul: 'Belum ada akun dana',
-              pesan:
-                  'Tambahkan akun dana untuk mulai mencatat transaksimu.',
-            );
-          }
-          final histori = layananSaldo.histori;
-          final sekarang = DateTime.now();
-          final arusBulanIni = ringkasArusBulan(
-            transaksi: layananSaldo.transaksi,
-            bulan: sekarang,
-          );
-          final arusBulanan = dataArusBulanan(
-            transaksi: layananSaldo.transaksi,
-            sampai: sekarang,
-          );
-          final distribusi = hitungDistribusiPengeluaran(
-            transaksi: layananSaldo.transaksi,
-            petaKategori: layananSaldo.petaKategori,
-            awal: DateTime(sekarang.year, sekarang.month, 1),
-            akhir: DateTime(sekarang.year, sekarang.month + 1, 0),
-          );
-          final punyaTransaksi = layananSaldo.transaksi.isNotEmpty
-              || layananSaldo.transfer.isNotEmpty;
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              KartuSaldo(
-                judul: 'Total Saldo',
-                nominal: formatRupiah(layananSaldo.totalSaldo),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () async => layananSaldo.muatUlang(),
+          child: Obx(() {
+            if (layananSaldo.pemuatan.value) {
+              return const _TampilanPemuatan();
+            }
+            if (layananSaldo.akun.isEmpty) {
+              return KeadaanKosong(
                 ikon: Icons.account_balance_wallet_rounded,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Arus Uang Bulan Ini',
-                style: tema.textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: KartuArus(
-                      jenis: JenisArus.pemasukan,
-                      label: 'Pemasukan',
-                      nominal: arusBulanIni.totalPemasukan,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: KartuArus(
-                      jenis: JenisArus.pengeluaran,
-                      label: 'Pengeluaran',
-                      nominal: arusBulanIni.totalPengeluaran,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Pemasukan vs Pengeluaran',
-                style: tema.textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 12),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GrafikArusBulanan(data: arusBulanan),
-                    ],
-                  ),
+                judul: 'Belum ada akun dana',
+                pesan:
+                    'Tambahkan akun dana untuk mulai mencatat transaksimu.',
+              );
+            }
+            final histori = layananSaldo.histori;
+            final sekarang = DateTime.now();
+            final arusBulanIni = ringkasArusBulan(
+              transaksi: layananSaldo.transaksi,
+              bulan: sekarang,
+            );
+            final arusBulanan = dataArusBulanan(
+              transaksi: layananSaldo.transaksi,
+              sampai: sekarang,
+            );
+            final distribusi = hitungDistribusiPengeluaran(
+              transaksi: layananSaldo.transaksi,
+              petaKategori: layananSaldo.petaKategori,
+              awal: DateTime(sekarang.year, sekarang.month, 1),
+              akhir: DateTime(sekarang.year, sekarang.month + 1, 0),
+            );
+            final punyaTransaksi = layananSaldo.transaksi.isNotEmpty
+                || layananSaldo.transfer.isNotEmpty;
+            return ListView(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              children: [
+                _KepalaBeranda(),
+                const SizedBox(height: 4),
+                KartuSaldo(
+                  judul: 'Total Saldo',
+                  nominal: formatRupiah(layananSaldo.totalSaldo),
+                  selisih: arusBulanIni.selisih,
                 ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Kategori Pengeluaran',
-                style: tema.textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 12),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: GrafikDistribusiKategori(data: distribusi),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Akun Dana',
-                style: tema.textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 12),
-              ...layananSaldo.akun.map(
-                (akun) => _kartuAkun(tema, layananSaldo, akun),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Aktivitas Terbaru',
-                style: tema.textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 12),
-              if (!punyaTransaksi)
-                KeadaanKosong(
-                  ikon: Icons.receipt_long_rounded,
-                  judul: 'Belum ada transaksi',
-                  pesan:
-                      'Mulai catat pemasukan atau pengeluaran untuk melihat '
-                      'ringkasan keuanganmu.',
-                )
-              else
-                ...histori.take(5).map(
-                      (entri) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: KartuEntriHistori(
-                          entri: entri,
-                          onTap: () => bukaAksiEntri(context, entri),
-                        ),
+                const SizedBox(height: 24),
+                const _JudulBagian('Arus Bulan Ini'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: KartuArus(
+                        jenis: JenisArus.pemasukan,
+                        label: 'Pemasukan',
+                        nominal: arusBulanIni.totalPemasukan,
                       ),
                     ),
-            ],
-          );
-        }),
-      ),
-    );
-  }
-
-  Widget _kartuAkun(
-    ThemeData tema,
-    LayananSaldo layanan,
-    AkunDanaData akun,
-  ) {
-    final saldo = layanan.saldoPerAkun[akun.id] ?? akun.saldoAwal;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Card(
-        child: ListTile(
-          leading: CircleAvatar(
-            backgroundColor: tema.colorScheme.primaryContainer,
-            foregroundColor: tema.colorScheme.onPrimaryContainer,
-            child: Icon(_ikonAkun(akun.jenis)),
-          ),
-          title: Text(akun.nama),
-          subtitle: Text(_labelJenis(akun.jenis)),
-          trailing: Text(
-            formatRupiah(saldo),
-            style: const TextStyle(fontWeight: FontWeight.w700),
-          ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: KartuArus(
+                        jenis: JenisArus.pengeluaran,
+                        label: 'Pengeluaran',
+                        nominal: arusBulanIni.totalPengeluaran,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                const _JudulBagian('Akun Dana'),
+                _DaftarAkunHorisontal(
+                  akun: layananSaldo.akun,
+                  saldoPerAkun: layananSaldo.saldoPerAkun,
+                ),
+                const SizedBox(height: 24),
+                const _JudulBagian('Arus Keuangan'),
+                _PanelArus(
+                  grafik: GrafikArusBulanan(data: arusBulanan),
+                ),
+                const SizedBox(height: 20),
+                const _JudulBagian('Pengeluaran per Kategori'),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: tema.colorScheme.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: tema.colorScheme.outlineVariant),
+                  ),
+                  child: GrafikDistribusiKategori(data: distribusi),
+                ),
+                const SizedBox(height: 24),
+                const _JudulBagian('Aktivitas Terbaru'),
+                if (!punyaTransaksi)
+                  KeadaanKosong(
+                    ikon: Icons.receipt_long_rounded,
+                    judul: 'Belum ada transaksi',
+                    pesan:
+                        'Mulai catat pemasukan atau pengeluaran untuk '
+                        'melihat ringkasan keuanganmu.',
+                  )
+                else
+                  ...List.generate(
+                    histori.take(5).length,
+                    (indeks) {
+                      final batasAkhir = indeks == histori.take(5).length - 1;
+                      final entri = histori[indeks];
+                      return Column(
+                        children: [
+                          KartuEntriHistori(
+                            entri: entri,
+                            onTap: () => bukaAksiEntri(context, entri),
+                          ),
+                          if (!batasAkhir) const Divider(height: 1),
+                        ],
+                      );
+                    },
+                  ),
+              ],
+            );
+          }),
         ),
       ),
     );
   }
+}
 
-  IconData _ikonAkun(JenisAkun jenis) {
-    return ikonUntukAkunDana(jenis.nama);
+class _KepalaBeranda extends StatelessWidget {
+  const _KepalaBeranda();
+
+  String _sapa(TimeOfDay kini) {
+    if (kini.hour < 11) return 'Selamat pagi';
+    if (kini.hour < 15) return 'Selamat siang';
+    if (kini.hour < 18) return 'Selamat sore';
+    return 'Selamat malam';
   }
 
-  String _labelJenis(JenisAkun jenis) {
-    return switch (jenis) {
-      JenisAkun.cash => 'Tunai',
-      JenisAkun.bank => 'Bank',
-      JenisAkun.ewallet => 'E-Wallet',
-    };
+  @override
+  Widget build(BuildContext context) {
+    final tema = Theme.of(context);
+    final waktu = TimeOfDay.now();
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, right: 2, top: 6, bottom: 18),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${_sapa(waktu)} 👋',
+                  style: tema.textTheme.titleLarge
+                      ?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  'Ini ringkasan keuanganmu hari ini.',
+                  style: tema.textTheme.bodySmall
+                      ?.copyWith(color: tema.colorScheme.onSurfaceVariant),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            tooltip: 'Pengaturan',
+            onPressed: () => Get.find<KontrolInduk>().ubahIndeks(3),
+            icon: const Icon(Icons.settings_outlined),
+            color: tema.colorScheme.onSurfaceVariant,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _JudulBagian extends StatelessWidget {
+  final String teks;
+
+  const _JudulBagian(this.teks);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 12),
+      child: Text(
+        teks,
+        style: Theme.of(context)
+            .textTheme
+            .titleMedium
+            ?.copyWith(fontWeight: FontWeight.w800),
+      ),
+    );
+  }
+}
+
+class _PanelArus extends StatelessWidget {
+  final Widget grafik;
+
+  const _PanelArus({required this.grafik});
+
+  @override
+  Widget build(BuildContext context) {
+    final warna = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: warna.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: warna.outlineVariant),
+      ),
+      child: grafik,
+    );
+  }
+}
+
+class _DaftarAkunHorisontal extends StatelessWidget {
+  final List<AkunDanaData> akun;
+  final Map<String, int> saldoPerAkun;
+
+  const _DaftarAkunHorisontal({
+    required this.akun,
+    required this.saldoPerAkun,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 92,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: akun.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
+        itemBuilder: (context, indeks) {
+          final a = akun[indeks];
+          final saldo = saldoPerAkun[a.id] ?? a.saldoAwal;
+          return _KartuAkunRingkas(
+            nama: a.nama,
+            saldo: formatRupiah(saldo),
+            ikon: ikonUntukAkunDana(a.jenis.nama),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _KartuAkunRingkas extends StatelessWidget {
+  final String nama;
+  final String saldo;
+  final IconData ikon;
+
+  const _KartuAkunRingkas({
+    required this.nama,
+    required this.saldo,
+    required this.ikon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = Theme.of(context);
+    return Container(
+      width: 150,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: tema.colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: tema.colorScheme.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Icon(ikon,
+              size: 18, color: tema.colorScheme.onSurfaceVariant),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                nama,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: tema.textTheme.bodySmall
+                    ?.copyWith(color: tema.colorScheme.onSurfaceVariant),
+              ),
+              const SizedBox(height: 2),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  saldo,
+                  maxLines: 1,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -210,40 +332,42 @@ class _TampilanPemuatan extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        const PemuatanShimmer(
-          anak: BlokSkeleton(tinggi: 120, radius: 20),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      children: const [
+        PemuatanShimmer(anak: BlokSkeleton(tinggi: 18, lebar: 160)),
+        SizedBox(height: 14),
+        PemuatanShimmer(anak: BlokSkeleton(tinggi: 150, radius: 24)),
+        SizedBox(height: 24),
+        PemuatanShimmer(anak: BlokSkeleton(tinggi: 16, lebar: 110)),
+        SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: PemuatanShimmer(anak: BlokSkeleton(tinggi: 84)),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: PemuatanShimmer(anak: BlokSkeleton(tinggi: 84)),
+            ),
+          ],
         ),
-        const SizedBox(height: 24),
-        const BlokSkeletonTeks(),
-        const SizedBox(height: 16),
-        ...List.generate(
-          3,
-          (_) => const Padding(
-            padding: EdgeInsets.only(bottom: 12),
-            child: KartuSkeletonTransaksi(),
+        SizedBox(height: 24),
+        PemuatanShimmer(
+          anak: Row(
+            children: [
+              BlokSkeleton(tinggi: 92, lebar: 150),
+              SizedBox(width: 12),
+              BlokSkeleton(tinggi: 92, lebar: 150),
+            ],
           ),
         ),
+        SizedBox(height: 24),
+        PemuatanShimmer(anak: BlokSkeleton(tinggi: 170)),
+        SizedBox(height: 24),
+        KartuSkeletonTransaksi(),
+        KartuSkeletonTransaksi(),
+        KartuSkeletonTransaksi(),
       ],
-    );
-  }
-}
-
-class BlokSkeletonTeks extends StatelessWidget {
-  const BlokSkeletonTeks({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const PemuatanShimmer(
-      anak: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          BlokSkeleton(tinggi: 16, lebar: 90),
-          SizedBox(height: 8),
-          BlokSkeleton(tinggi: 14, lebar: 160),
-        ],
-      ),
     );
   }
 }

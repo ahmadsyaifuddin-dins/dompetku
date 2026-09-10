@@ -5,6 +5,7 @@ import '../../inti/utilitas/format_rupiah.dart';
 
 enum JenisArus { pemasukan, pengeluaran }
 
+/// Ringkasan arus ringkas: tidak berat, tanpa kartu besar.
 class KartuArus extends StatelessWidget {
   final JenisArus jenis;
   final String label;
@@ -23,50 +24,51 @@ class KartuArus extends StatelessWidget {
     final (warna, ikon, tanda) = switch (jenis) {
       JenisArus.pemasukan => (
           warnaDompetku.pemasukan,
-          Icons.south_west_rounded,
+          Icons.arrow_downward_rounded,
           '+',
         ),
       JenisArus.pengeluaran => (
           warnaDompetku.pengeluaran,
-          Icons.north_east_rounded,
+          Icons.arrow_upward_rounded,
           '-',
         ),
     };
+    final tema = Theme.of(context);
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(ikon, size: 18, color: warna),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurfaceVariant,
-                        ),
-                  ),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: tema.colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: tema.colorScheme.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(ikon, size: 15, color: warna),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: tema.textTheme.bodySmall
+                      ?.copyWith(color: tema.colorScheme.onSurfaceVariant),
                 ),
-              ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '$tanda${formatRupiah(nominal)}',
+            style: tema.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: warna,
             ),
-            const SizedBox(height: 8),
-            Text(
-              '$tanda${formatRupiah(nominal)}',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: warna,
-                  ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

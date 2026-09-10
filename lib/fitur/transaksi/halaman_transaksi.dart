@@ -35,13 +35,12 @@ class HalamanTransaksi extends StatelessWidget {
               ),
             ),
           ),
+          IconButton(
+            tooltip: 'Catat',
+            onPressed: () => _bukaMenuTambah(context),
+            icon: const Icon(Icons.add_rounded),
+          ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: null,
-        onPressed: () => _bukaMenuTambah(context),
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Catat'),
       ),
       body: Column(
         children: [
@@ -113,16 +112,9 @@ class HalamanTransaksi extends StatelessWidget {
                           'transaksi atau transfer.',
                 );
               }
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: histori.length,
-                itemBuilder: (context, indeks) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: KartuEntriHistori(
-                    entri: histori[indeks],
-                    onTap: () => bukaAksiEntri(context, histori[indeks]),
-                  ),
-                ),
+              return ListView(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+                children: _kelompokPerHari(context, histori),
               );
             }),
           ),
@@ -132,6 +124,41 @@ class HalamanTransaksi extends StatelessWidget {
   }
 
   static const _kodeSemua = '';
+
+  List<Widget> _kelompokPerHari(
+    BuildContext context,
+    List<EntriHistori> histori,
+  ) {
+    final kini = DateTime.now();
+    final batasHariIni = DateTime(kini.year, kini.month, kini.day);
+    final batasKemarin = batasHariIni.subtract(const Duration(days: 1));
+
+    final baris = <Widget>[];
+    String? labelSebelum;
+    for (final entri in histori) {
+      final hari = DateTime(
+        entri.tanggal.year,
+        entri.tanggal.month,
+        entri.tanggal.day,
+      );
+      final label = hari == batasHariIni
+          ? 'Hari Ini'
+          : hari == batasKemarin
+              ? 'Kemarin'
+              : formatTanggal(entri.tanggal);
+      if (labelSebelum != label) {
+        baris.add(_TeksKelompok(label: label));
+        labelSebelum = label;
+      }
+      baris.add(
+        KartuEntriHistori(
+          entri: entri,
+          onTap: () => bukaAksiEntri(context, entri),
+        ),
+      );
+    }
+    return baris;
+  }
 
   void _bukaFilter(BuildContext context, HistoriController pengontrol) {
     final layanan = Get.find<LayananSaldo>();
@@ -439,6 +466,25 @@ class HalamanTransaksi extends StatelessWidget {
       ),
       enabled: !terkunci,
       onTap: onTap,
+    );
+  }
+}
+
+class _TeksKelompok extends StatelessWidget {
+  final String label;
+
+  const _TeksKelompok({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 14, 0, 6),
+      child: Text(
+        label,
+        style: tema.textTheme.titleSmall
+            ?.copyWith(fontWeight: FontWeight.w800),
+      ),
     );
   }
 }

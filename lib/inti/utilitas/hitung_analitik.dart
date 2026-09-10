@@ -102,12 +102,14 @@ class DistribusiKategori {
   final String nama;
   final int total;
   final double persen;
+  final String? ikon;
 
   const DistribusiKategori({
     required this.kategoriId,
     required this.nama,
     required this.total,
     required this.persen,
+    this.ikon,
   });
 }
 
@@ -138,6 +140,7 @@ List<DistribusiKategori> hitungDistribusiPengeluaran({
       nama: kategori?.nama ?? 'Tanpa kategori',
       total: e.value,
       persen: (e.value / total) * 100,
+      ikon: kategori?.ikon,
     );
   }).toList();
   hasil.sort((a, b) => b.total.compareTo(a.total));

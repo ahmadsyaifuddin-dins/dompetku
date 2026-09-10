@@ -4,6 +4,8 @@ import '../../data/model/ringkasan_entri.dart';
 import '../../inti/tema/warna_tema.dart';
 import '../../inti/utilitas/format_rupiah.dart';
 
+/// Baris aktivitas/transaksi ringkas — bukan kartu, divisualkan seperti
+/// timeline agar daftar tidak terasa seperti tabel.
 class KartuEntriHistori extends StatelessWidget {
   final EntriHistori entri;
   final VoidCallback? onTap;
@@ -16,8 +18,8 @@ class KartuEntriHistori extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final warnaDompetku = Theme.of(context).extension<WarnaDompetku>()!;
-    final tua = Theme.of(context).colorScheme;
+    final tema = Theme.of(context);
+    final warnaDompetku = tema.extension<WarnaDompetku>()!;
 
     final (ikon, warnaIkon) = switch (entri.jenis) {
       JenisEntri.pemasukan => (
@@ -30,14 +32,14 @@ class KartuEntriHistori extends StatelessWidget {
         ),
       JenisEntri.transfer => (
           Icons.swap_horiz_rounded,
-          tua.primary,
+          warnaDompetku.aksen,
         ),
     };
 
     final (tanda, warnaNominal) = switch (entri.jenis) {
       JenisEntri.pemasukan => ('+', warnaDompetku.pemasukan),
       JenisEntri.pengeluaran => ('-', warnaDompetku.pengeluaran),
-      JenisEntri.transfer => ('', tua.primary),
+      JenisEntri.transfer => ('', warnaDompetku.aksen),
     };
 
     final subtitle = switch (entri.jenis) {
@@ -46,31 +48,54 @@ class KartuEntriHistori extends StatelessWidget {
       _ => entri.namaAkun,
     };
 
-    return Card(
-      child: ListTile(
-        onTap: onTap,
-        leading: CircleAvatar(
-          backgroundColor: warnaIkon.withValues(alpha: 0.14),
-          foregroundColor: warnaIkon,
-          child: Icon(ikon, size: 22),
-        ),
-        title: Text(
-          entri.label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(
-          subtitle,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: Text(
-          '$tanda${formatRupiah(entri.nominal)}',
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            color: warnaNominal,
-          ),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: warnaIkon.withValues(alpha: 0.13),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(ikon, size: 19, color: warnaIkon),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    entri.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: tema.textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: tema.textTheme.bodySmall
+                        ?.copyWith(color: tema.colorScheme.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              '$tanda${formatRupiah(entri.nominal)}',
+              style: tema.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: warnaNominal,
+              ),
+            ),
+          ],
         ),
       ),
     );
