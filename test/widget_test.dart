@@ -5,6 +5,7 @@ import 'package:dompetku/data/repositori/repositori_kategori.dart';
 import 'package:dompetku/data/repositori/repositori_piutang.dart';
 import 'package:dompetku/data/repositori/repositori_transaksi.dart';
 import 'package:dompetku/data/repositori/repositori_transfer.dart';
+import 'package:dompetku/fitur/beranda/halaman_beranda.dart';
 import 'package:dompetku/inti/layanan/layanan_preferensi.dart';
 import 'package:dompetku/inti/layanan/layanan_saldo.dart';
 import 'package:dompetku/inti/tema/pengontrol_tema.dart';
@@ -132,9 +133,22 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Total Saldo'), findsOneWidget);
+
+      final gulirBeranda = find
+          .descendant(
+            of: find.byType(HalamanBeranda),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      await tester.scrollUntilVisible(
+        find.text('SeaBank'),
+        200,
+        scrollable: gulirBeranda,
+      );
+
       expect(find.text('Akun Dana'), findsOneWidget);
       expect(find.text('SeaBank'), findsOneWidget);
-      expect(find.text('Rp0'), findsNWidgets(2));
+      expect(find.text('Rp0'), findsWidgets);
 
       await lingkungan.database.close();
       await tester.pump();

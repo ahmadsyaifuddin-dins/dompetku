@@ -1,0 +1,7 @@
+sekarang aku mau kamu ubah nama nama folder yg kurang familiar di aku kek nama folder inti, dkk itu itu seharusnya nama foldermya core kan ya nah pake nama bahasa inggris aja ya biar familiar terus untuk nama nama yg perlu di ubah seperti folder:
+
+inti, beserta sub folder di dalamnya 
+
+terus nama folder utama itu
+
+untuk nama file nya pertahankan ya btw hanya folder inti dan sub foldernya, dan folder Utama terus isi dari file file yg dari folder Utama nah hanya yg itu itu aja yg diubah ke Bahasa inggris yg familiar ya (yg umum dipake oleh developer flutter) sisanya jangan kamu ubah nama nama nya 

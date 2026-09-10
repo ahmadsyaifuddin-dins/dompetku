@@ -6,6 +6,10 @@ import '../../data/model/enum_dompetku.dart';
 import '../../inti/konstanta/ikon_map.dart';
 import '../../inti/layanan/layanan_saldo.dart';
 import '../../inti/utilitas/format_rupiah.dart';
+import '../../inti/utilitas/hitung_analitik.dart';
+import '../../komponen/grafik/grafik_arus_bulanan.dart';
+import '../../komponen/grafik/grafik_distribusi_kategori.dart';
+import '../../komponen/kartu/kartu_arus.dart';
 import '../../komponen/kartu/kartu_entri_histori.dart';
 import '../../komponen/kartu/kartu_saldo.dart';
 import '../../komponen/keadaan/keadaan_kosong.dart';
@@ -37,6 +41,23 @@ class HalamanBeranda extends StatelessWidget {
             );
           }
           final histori = layananSaldo.histori;
+          final sekarang = DateTime.now();
+          final arusBulanIni = ringkasArusBulan(
+            transaksi: layananSaldo.transaksi,
+            bulan: sekarang,
+          );
+          final arusBulanan = dataArusBulanan(
+            transaksi: layananSaldo.transaksi,
+            sampai: sekarang,
+          );
+          final distribusi = hitungDistribusiPengeluaran(
+            transaksi: layananSaldo.transaksi,
+            petaKategori: layananSaldo.petaKategori,
+            awal: DateTime(sekarang.year, sekarang.month, 1),
+            akhir: DateTime(sekarang.year, sekarang.month + 1, 0),
+          );
+          final punyaTransaksi = layananSaldo.transaksi.isNotEmpty
+              || layananSaldo.transfer.isNotEmpty;
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -44,6 +65,63 @@ class HalamanBeranda extends StatelessWidget {
                 judul: 'Total Saldo',
                 nominal: formatRupiah(layananSaldo.totalSaldo),
                 ikon: Icons.account_balance_wallet_rounded,
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Arus Uang Bulan Ini',
+                style: tema.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: KartuArus(
+                      jenis: JenisArus.pemasukan,
+                      label: 'Pemasukan',
+                      nominal: arusBulanIni.totalPemasukan,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: KartuArus(
+                      jenis: JenisArus.pengeluaran,
+                      label: 'Pengeluaran',
+                      nominal: arusBulanIni.totalPengeluaran,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Pemasukan vs Pengeluaran',
+                style: tema.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 12),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GrafikArusBulanan(data: arusBulanan),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Kategori Pengeluaran',
+                style: tema.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 12),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: GrafikDistribusiKategori(data: distribusi),
+                ),
               ),
               const SizedBox(height: 24),
               Text(
@@ -62,7 +140,7 @@ class HalamanBeranda extends StatelessWidget {
                     ?.copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 12),
-              if (histori.isEmpty)
+              if (!punyaTransaksi)
                 KeadaanKosong(
                   ikon: Icons.receipt_long_rounded,
                   judul: 'Belum ada transaksi',

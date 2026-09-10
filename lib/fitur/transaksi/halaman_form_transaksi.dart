@@ -26,10 +26,6 @@ class HalamanFormTransaksi extends StatelessWidget {
     ));
     final judul =
         jenis == JenisTransaksi.pemasukan ? 'Pemasukan' : 'Pengeluaran';
-    final labelSimpan = sedangMengedit == null ? 'Simpan $judul' : 'Perbarui';
-    final sesuaiJenis = jenis == JenisTransaksi.pemasukan
-        ? Icons.add_circle_rounded
-        : Icons.remove_circle_rounded;
 
     return Scaffold(
       appBar: AppBar(title: Text(judul)),
@@ -38,109 +34,135 @@ class HalamanFormTransaksi extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           children: [
             const SizedBox(height: 8),
-            MasukanNominal(controller: pengontrol.nominalController),
-            const SizedBox(height: 20),
-            Obx(
-              () => DropdownButtonFormField<String>(
-                key: ValueKey(pengontrol.akunId.value),
-                initialValue: pengontrol.akunId.value,
-                decoration: const InputDecoration(
-                  labelText: 'Akun Dana',
-                  prefixIcon: Icon(Icons.account_balance_wallet_rounded),
-                ),
-                items: pengontrol.opsiAkun
-                    .map(
-                      (akun) => DropdownMenuItem(
-                        value: akun.id,
-                        child: Text(akun.nama),
-                      ),
-                    )
-                    .toList(),
-                onChanged: pengontrol.opsiAkun.isEmpty
-                    ? null
-                    : (nilai) => pengontrol.akunId.value = nilai,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Obx(
-              () => DropdownButtonFormField<String>(
-                key: ValueKey(pengontrol.kategoriId.value),
-                initialValue: pengontrol.kategoriId.value,
-                decoration: InputDecoration(
-                  labelText: 'Kategori',
-                  prefixIcon: Icon(
-                    sesuaiJenis,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-                items: pengontrol.opsiKategori
-                    .map(
-                      (kategori) => DropdownMenuItem(
-                        value: kategori.id,
-                        child: Text(kategori.nama),
-                      ),
-                    )
-                    .toList(),
-                onChanged: pengontrol.opsiKategori.isEmpty
-                    ? null
-                    : (nilai) => pengontrol.kategoriId.value = nilai,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Obx(
-              () => PilihTanggal(
-                tanggal: pengontrol.tanggal.value,
-                onBerubah: (tanggal) => pengontrol.tanggal.value = tanggal,
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: pengontrol.catatanController,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Catatan',
-                hintText: 'Tulis catatan (opsional)',
-                alignLabelWithHint: true,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Obx(() {
-              final pesan = pengontrol.galat.value;
-              if (pesan == null) return const SizedBox.shrink();
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  pesan,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              );
-            }),
-            Obx(
-              () => TombolUtama(
-                label: labelSimpan,
-                ikon: Icons.check_rounded,
-                pemuatan: pengontrol.menyimpan.value,
-                onDitekan: () async {
-                  final berhasil = await pengontrol.simpan();
-                  if (!berhasil) return;
-                  tampilkanSnackbarDompetku(
-                    jenis: JenisSnackbar.sukses,
-                    judul: 'Berhasil',
-                    pesan: sedangMengedit == null
-                        ? '$judul sebesar '
-                            '${pengontrol.nominalController.text} tersimpan.'
-                        : '$judul diperbarui.',
-                  );
-                  Get.back();
-                },
-              ),
-            ),
+            BadanFormTransaksi(pengontrol: pengontrol),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Isi formulir transaksi (nominal, akun, kategori, tanggal, catatan, simpan).
+class BadanFormTransaksi extends StatelessWidget {
+  final FormTransaksiController pengontrol;
+
+  const BadanFormTransaksi({super.key, required this.pengontrol});
+
+  @override
+  Widget build(BuildContext context) {
+    final sedangEdit = pengontrol.sedangEdit;
+    final judul = pengontrol.jenis == JenisTransaksi.pemasukan
+        ? 'Pemasukan'
+        : 'Pengeluaran';
+    final labelSimpan = sedangEdit ? 'Perbarui' : 'Simpan $judul';
+    final sesuaiJenis = pengontrol.jenis == JenisTransaksi.pemasukan
+        ? Icons.add_circle_rounded
+        : Icons.remove_circle_rounded;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        MasukanNominal(controller: pengontrol.nominalController),
+        const SizedBox(height: 20),
+        Obx(
+          () => DropdownButtonFormField<String>(
+            key: ValueKey(pengontrol.akunId.value),
+            initialValue: pengontrol.akunId.value,
+            decoration: const InputDecoration(
+              labelText: 'Akun Dana',
+              prefixIcon: Icon(Icons.account_balance_wallet_rounded),
+            ),
+            items: pengontrol.opsiAkun
+                .map(
+                  (akun) => DropdownMenuItem(
+                    value: akun.id,
+                    child: Text(akun.nama),
+                  ),
+                )
+                .toList(),
+            onChanged: pengontrol.opsiAkun.isEmpty
+                ? null
+                : (nilai) => pengontrol.akunId.value = nilai,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Obx(
+          () => DropdownButtonFormField<String>(
+            key: ValueKey(pengontrol.kategoriId.value),
+            initialValue: pengontrol.kategoriId.value,
+            decoration: InputDecoration(
+              labelText: 'Kategori',
+              prefixIcon: Icon(
+                sesuaiJenis,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            items: pengontrol.opsiKategori
+                .map(
+                  (kategori) => DropdownMenuItem(
+                    value: kategori.id,
+                    child: Text(kategori.nama),
+                  ),
+                )
+                .toList(),
+            onChanged: pengontrol.opsiKategori.isEmpty
+                ? null
+                : (nilai) => pengontrol.kategoriId.value = nilai,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Obx(
+          () => PilihTanggal(
+            tanggal: pengontrol.tanggal.value,
+            onBerubah: (tanggal) => pengontrol.tanggal.value = tanggal,
+          ),
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: pengontrol.catatanController,
+          maxLines: 3,
+          decoration: const InputDecoration(
+            labelText: 'Catatan',
+            hintText: 'Tulis catatan (opsional)',
+            alignLabelWithHint: true,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Obx(() {
+          final pesan = pengontrol.galat.value;
+          if (pesan == null) return const SizedBox.shrink();
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              pesan,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          );
+        }),
+        Obx(
+          () => TombolUtama(
+            label: labelSimpan,
+            ikon: Icons.check_rounded,
+            pemuatan: pengontrol.menyimpan.value,
+            onDitekan: () async {
+              final berhasil = await pengontrol.simpan();
+              if (!berhasil) return;
+              tampilkanSnackbarDompetku(
+                jenis: JenisSnackbar.sukses,
+                judul: 'Berhasil',
+                pesan: sedangEdit
+                    ? '$judul diperbarui.'
+                    : '$judul sebesar '
+                        '${pengontrol.nominalController.text} tersimpan.',
+              );
+              Get.back();
+            },
+          ),
+        ),
+      ],
     );
   }
 }

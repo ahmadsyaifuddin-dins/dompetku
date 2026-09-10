@@ -11,6 +11,7 @@ import '../fitur/piutang/halaman_tambah_piutang.dart';
 import '../fitur/transaksi/halaman_baca_gambar.dart';
 import '../fitur/transaksi/halaman_form_transaksi.dart';
 import '../fitur/transaksi/halaman_form_transfer.dart';
+import '../fitur/transaksi/halaman_review_ocr.dart';
 import '../fitur/transaksi/halaman_transaksi.dart';
 import 'halaman_induk.dart';
 
@@ -28,6 +29,7 @@ class Rute {
   static const String tambahPiutang = '/tambah-piutang';
   static const String detailPiutang = '/detail-piutang';
   static const String bacaGambar = '/baca-gambar';
+  static const String reviewOCR = '/review-ocr';
   static const String akunDana = '/akun-dana';
   static const String kategori = '/kategori';
   static const String tentang = '/tentang';
@@ -72,6 +74,10 @@ class Rute {
     GetPage(
       name: bacaGambar,
       page: () => const HalamanBacaGambar(),
+    ),
+    GetPage(
+      name: reviewOCR,
+      page: () => const HalamanReviewOCR(),
     ),
     GetPage(
       name: akunDana,

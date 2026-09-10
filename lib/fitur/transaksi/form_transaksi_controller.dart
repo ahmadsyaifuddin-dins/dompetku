@@ -10,6 +10,7 @@ import '../../data/repositori/repositori_kategori.dart';
 import '../../data/repositori/repositori_transaksi.dart';
 import '../../inti/utilitas/format_rupiah.dart';
 import '../../inti/validasi/validasi_transaksi.dart';
+import 'draft_transaksi_ocr.dart';
 
 class FormTransaksiController extends GetxController {
   final RepositoriTransaksi repositoriTransaksi;
@@ -18,6 +19,7 @@ class FormTransaksiController extends GetxController {
 
   final JenisTransaksi jenis;
   final TransaksiData? sedangMengedit;
+  final DraftTransaksiOCR? draft;
   final nominalController = TextEditingController();
   final catatanController = TextEditingController();
   final akunId = RxnString();
@@ -38,8 +40,16 @@ class FormTransaksiController extends GetxController {
     required this.repositoriAkunDana,
     required this.repositoriKategori,
     TransaksiData? sedangMengedit,
-  }) : sedangMengedit = sedangMengedit {
-    if (sedangMengedit != null) {
+    DraftTransaksiOCR? draft,
+  })  : sedangMengedit = sedangMengedit,
+        draft = draft {
+    if (draft != null) {
+      nominalController.text = formatNominalInput(draft.nominal.toString());
+      akunId.value = draft.akunDanaId;
+      kategoriId.value = draft.kategoriId;
+      tanggal.value = draft.tanggal;
+      catatanController.text = draft.catatan ?? draft.merchant ?? '';
+    } else if (sedangMengedit != null) {
       nominalController.text = formatNominalInput(
         sedangMengedit.nominal.toString(),
       );
@@ -57,7 +67,10 @@ class FormTransaksiController extends GetxController {
     super.onInit();
     _langgananAkun = repositoriAkunDana.pantauSemuaAktif().listen((data) {
       opsiAkun.value = data;
-      if (akunId.value == null && data.isNotEmpty) {
+      final idDraft = draft?.akunDanaId;
+      if (idDraft != null && data.any((akun) => akun.id == idDraft)) {
+        akunId.value = idDraft;
+      } else if (akunId.value == null && data.isNotEmpty) {
         akunId.value = data.first.id;
       }
     });
@@ -65,6 +78,10 @@ class FormTransaksiController extends GetxController {
         .pantauAktif(jenis: jenis)
         .listen((data) {
       opsiKategori.value = data;
+      final idDraft = draft?.kategoriId;
+      if (idDraft != null && data.any((kategori) => kategori.id == idDraft)) {
+        kategoriId.value = idDraft;
+      }
     });
   }
 

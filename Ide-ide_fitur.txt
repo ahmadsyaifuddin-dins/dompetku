@@ -1,0 +1,1 @@
+pada halaman kategori pemasukan dan pengeluaran itu kita akan menambahkan semacam kategori ini dijadikan default misal di bagian pemasukan kita mau setel Uang Saku menjadi default ketika input data jadi gak perlu lgi milih manual lgi kalau (tapi tetap masih bisa di pilih kok hal ini untuk mempercepat aja)
