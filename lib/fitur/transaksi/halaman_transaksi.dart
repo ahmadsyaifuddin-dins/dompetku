@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../data/model/enum_dompetku.dart';
 import '../../data/model/ringkasan_entri.dart';
 import '../../inti/layanan/layanan_saldo.dart';
+import '../../inti/tema/warna_tema.dart';
 import '../../inti/utilitas/format_tanggal.dart';
 import '../../komponen/kartu/kartu_entri_histori.dart';
 import '../../komponen/keadaan/keadaan_kosong.dart';
@@ -20,6 +21,7 @@ class HalamanTransaksi extends StatelessWidget {
     final pengontrol = Get.put(
       HistoriController(layananSaldo: Get.find<LayananSaldo>()),
     );
+    final warnaDompetku = Theme.of(context).extension<WarnaDompetku>()!;
 
     return Scaffold(
       appBar: AppBar(
@@ -53,27 +55,34 @@ class HalamanTransaksi extends StatelessWidget {
                   children: [
                     _chipFilter(
                       context,
+                      ikon: Icons.all_inclusive_rounded,
                       label: 'Semua',
                       aktif: pengontrol.filter.value == null,
                       onTap: () => pengontrol.filter.value = null,
                     ),
                     _chipFilter(
                       context,
+                      ikon: Icons.south_west_rounded,
                       label: 'Pemasukan',
+                      warna: warnaDompetku.pemasukan,
                       aktif: pengontrol.filter.value == JenisEntri.pemasukan,
                       onTap: () =>
                           pengontrol.filter.value = JenisEntri.pemasukan,
                     ),
                     _chipFilter(
                       context,
+                      ikon: Icons.north_east_rounded,
                       label: 'Pengeluaran',
+                      warna: warnaDompetku.pengeluaran,
                       aktif: pengontrol.filter.value == JenisEntri.pengeluaran,
                       onTap: () =>
                           pengontrol.filter.value = JenisEntri.pengeluaran,
                     ),
                     _chipFilter(
                       context,
+                      ikon: Icons.swap_horiz_rounded,
                       label: 'Transfer',
+                      warna: warnaDompetku.aksen,
                       aktif: pengontrol.filter.value == JenisEntri.transfer,
                       onTap: () =>
                           pengontrol.filter.value = JenisEntri.transfer,
@@ -352,13 +361,22 @@ class HalamanTransaksi extends StatelessWidget {
 
   Widget _chipFilter(
     BuildContext context, {
+    required IconData ikon,
     required String label,
     required bool aktif,
     required VoidCallback onTap,
+    Color? warna,
   }) {
+    final palet = Theme.of(context).colorScheme;
+    final warnaAkhir = warna ?? palet.primary;
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: ChoiceChip(
+        avatar: Icon(
+          ikon,
+          size: 17,
+          color: aktif ? warnaAkhir : palet.onSurfaceVariant,
+        ),
         label: Text(label),
         selected: aktif,
         showCheckmark: false,
