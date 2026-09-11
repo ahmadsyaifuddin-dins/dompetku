@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../app/app.dart';
+import '../../app/routes.dart';
 import '../../core/services/layanan_fonnte.dart';
 import '../../core/services/layanan_preferensi.dart';
-import '../../core/theme/pengontrol_tema.dart';
-import '../../core/theme/tema_gelap.dart';
-import '../../core/theme/tema_terang.dart';
 import '../../komponen/tombol/tombol_utama.dart';
+import 'animasi_proses_onboarding.dart';
 import 'onboarding_controller.dart';
 
 /// Halaman awal pemasangan: mengumpulkan nama asli dan nomor WhatsApp
@@ -17,74 +15,15 @@ class HalamanOnboarding extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pengontrolTema = Get.find<PengontrolTema>();
+    final tema = Theme.of(context);
+    final warna = tema.colorScheme;
 
-    return Obx(
-      () => GetMaterialApp(
-        title: 'DompetKu',
-        debugShowCheckedModeBanner: false,
-        theme: temaTerangBuild(),
-        darkTheme: temaGelapBuild(),
-        themeMode: pengontrolTema.themeMode,
-        home: const BadanOnboarding(),
-      ),
-    );
-  }
-}
-
-class BadanOnboarding extends StatefulWidget {
-  const BadanOnboarding({super.key});
-
-  @override
-  State<BadanOnboarding> createState() => _BadanOnboardingState();
-}
-
-class _BadanOnboardingState extends State<BadanOnboarding>
-    with SingleTickerProviderStateMixin {
-  late final OnboardingController _pengontrol;
-  late final AnimationController _bukaBypass;
-
-  @override
-  void initState() {
-    super.initState();
-    _pengontrol = Get.put(
+    final pengontrol = Get.put(
       OnboardingController(
         layananPreferensi: Get.find<LayananPreferensi>(),
         layananFonnte: Get.find<LayananFonnte>(),
       ),
     );
-    _bukaBypass = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          _lewati();
-        }
-      });
-  }
-
-  @override
-  void dispose() {
-    _bukaBypass.dispose();
-    super.dispose();
-  }
-
-  Future<void> _lewati() async {
-    await _pengontrol.lewati();
-    if (!mounted) return;
-    runApp(const AplikasiDompetKu());
-  }
-
-  Future<void> _mulai() async {
-    final berhasil = await _pengontrol.simpan();
-    if (!berhasil || !mounted) return;
-    runApp(const AplikasiDompetKu());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final tema = Theme.of(context);
-    final warna = tema.colorScheme;
 
     return Scaffold(
       body: SafeArea(
@@ -110,7 +49,7 @@ class _BadanOnboardingState extends State<BadanOnboarding>
             ),
             const SizedBox(height: 28),
             TextField(
-              controller: _pengontrol.namaController,
+              controller: pengontrol.namaController,
               textCapitalization: TextCapitalization.words,
               autofocus: true,
               decoration: const InputDecoration(
@@ -121,7 +60,7 @@ class _BadanOnboardingState extends State<BadanOnboarding>
             ),
             const SizedBox(height: 16),
             TextField(
-              controller: _pengontrol.nomorController,
+              controller: pengontrol.nomorController,
               keyboardType: TextInputType.phone,
               decoration: const InputDecoration(
                 labelText: 'Nomor WhatsApp',
@@ -157,7 +96,7 @@ class _BadanOnboardingState extends State<BadanOnboarding>
             ),
             const SizedBox(height: 16),
             Obx(() {
-              final pesan = _pengontrol.galat.value;
+              final pesan = pengontrol.galat.value;
               if (pesan == null) return const SizedBox.shrink();
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
@@ -174,8 +113,23 @@ class _BadanOnboardingState extends State<BadanOnboarding>
               () => TombolUtama(
                 label: 'Mulai Menggunakan',
                 ikon: Icons.check_rounded,
-                pemuatan: _pengontrol.menyimpan.value,
-                onDitekan: _mulai,
+                pemuatan: pengontrol.menyimpan.value,
+                onDitekan: () async {
+                  final berhasil = await Navigator.of(context).push<bool>(
+                    PageRouteBuilder(
+                      opaque: false,
+                      pageBuilder: (konteks, animasi, energi) =>
+                          AnimasiProsesOnboarding(
+                        prosesSimpan: pengontrol.simpan(),
+                      ),
+                      transitionsBuilder: (konteks, animasi, energi, child) =>
+                          FadeTransition(opacity: animasi, child: child),
+                    ),
+                  );
+                  if (berhasil == true) {
+                    Get.offAllNamed(Rute.halamanInduk);
+                  }
+                },
               ),
             ),
           ],
@@ -188,36 +142,15 @@ class _BadanOnboardingState extends State<BadanOnboarding>
     return SizedBox(
       width: 112,
       height: 112,
-      child: GestureDetector(
-        onLongPressStart: (_) => _bukaBypass.forward(from: 0),
-        onLongPressEnd: (_) => _bukaBypass.reset(),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: warna.primaryContainer,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.account_balance_wallet_rounded,
-                size: 52,
-                color: warna.onPrimaryContainer,
-              ),
-            ),
-            AnimatedBuilder(
-              animation: _bukaBypass,
-              builder: (context, anak) => Padding(
-                padding: const EdgeInsets.all(6),
-                child: CircularProgressIndicator(
-                  value: _bukaBypass.value,
-                  strokeWidth: 4,
-                  color: warna.primary,
-                  backgroundColor: warna.surfaceContainerHighest,
-                ),
-              ),
-            ),
-          ],
+      child: Container(
+        decoration: BoxDecoration(
+          color: warna.primaryContainer,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          Icons.account_balance_wallet_rounded,
+          size: 52,
+          color: warna.onPrimaryContainer,
         ),
       ),
     );

@@ -6,6 +6,7 @@ import 'package:dompetku/data/repositori/repositori_piutang.dart';
 import 'package:dompetku/data/repositori/repositori_transaksi.dart';
 import 'package:dompetku/data/repositori/repositori_transfer.dart';
 import 'package:dompetku/fitur/beranda/halaman_beranda.dart';
+import 'package:dompetku/core/services/layanan_fonnte.dart';
 import 'package:dompetku/core/services/layanan_preferensi.dart';
 import 'package:dompetku/core/services/layanan_saldo.dart';
 import 'package:dompetku/core/theme/pengontrol_tema.dart';
@@ -23,7 +24,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> aturLingkunganUji() async {
   Get.reset();
-  SharedPreferences.setMockInitialValues({});
+  SharedPreferences.setMockInitialValues({'sudah_instal': true});
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
   await initializeDateFormatting('id_ID', null);
 }
@@ -47,6 +48,7 @@ Future<LingkunganUji> buatLingkunganUji() async {
   Get.put<RepositoriTransfer>(RepositoriTransfer(database));
   Get.put<RepositoriPiutang>(RepositoriPiutang(database));
   Get.put<LayananPreferensi>(LayananPreferensi(preferensi));
+  Get.put<LayananFonnte>(LayananFonnte());
   Get.put<PengontrolTema>(PengontrolTema(Get.find<LayananPreferensi>()));
 
   final layananSaldo = Get.put<LayananSaldo>(

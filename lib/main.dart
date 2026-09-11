@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:rive/rive.dart';
 
 import 'komponen/pemuatan/pemuatan_spinkit.dart';
 import 'app/app.dart';
 import 'app/dependencies.dart';
-import 'core/services/layanan_preferensi.dart';
-import 'fitur/onboarding/halaman_onboarding.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,8 +38,7 @@ class _SplashDompetkuState extends State<SplashDompetku> {
     }
     await Dependensi.inisialisasi();
     if (!mounted) return;
-    final sudahInstal = Get.find<LayananPreferensi>().sudahInstal;
-    runApp(sudahInstal ? const AplikasiDompetKu() : const HalamanOnboarding());
+    runApp(const AplikasiDompetKu());
   }
 
   @override

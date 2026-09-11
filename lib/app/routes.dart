@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../fitur/akun_dana/halaman_akun_dana.dart';
 import '../fitur/beranda/halaman_beranda.dart';
 import '../fitur/kategori/halaman_kategori.dart';
+import '../fitur/onboarding/halaman_onboarding.dart';
 import '../fitur/pengaturan/halaman_pengaturan.dart';
 import '../fitur/pengaturan/halaman_tentang.dart';
 import '../fitur/piutang/halaman_detail_piutang.dart';
@@ -18,6 +19,7 @@ import 'main_page.dart';
 class Rute {
   Rute._();
 
+  static const String onboarding = '/onboarding';
   static const String halamanInduk = '/';
   static const String beranda = '/beranda';
   static const String transaksi = '/transaksi';
@@ -35,6 +37,10 @@ class Rute {
   static const String tentang = '/tentang';
 
   static final pages = [
+    GetPage(
+      name: onboarding,
+      page: () => const HalamanOnboarding(),
+    ),
     GetPage(
       name: halamanInduk,
       page: () => const HalamanInduk(),
