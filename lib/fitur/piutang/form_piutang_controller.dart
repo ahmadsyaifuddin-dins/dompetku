@@ -1,17 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../data/database/database.dart';
 import '../../data/repositori/repositori_piutang.dart';
 
 class FormPiutangController extends GetxController {
   final RepositoriPiutang repositoriPiutang;
+  final PiutangData? sedangMengedit;
 
   final namaController = TextEditingController();
   final catatanController = TextEditingController();
   final menyimpan = false.obs;
   final galat = RxnString();
 
-  FormPiutangController({required this.repositoriPiutang});
+  FormPiutangController({
+    required this.repositoriPiutang,
+    this.sedangMengedit,
+  }) {
+    final data = sedangMengedit;
+    if (data != null) {
+      namaController.text = data.nama;
+      catatanController.text = data.catatan ?? '';
+    }
+  }
+
+  bool get sedangEdit => sedangMengedit != null;
 
   Future<bool> simpan() async {
     galat.value = null;
@@ -26,10 +39,18 @@ class FormPiutangController extends GetxController {
     menyimpan.value = true;
     try {
       final catatan = catatanController.text.trim();
-      await repositoriPiutang.buatPiutang(
-        nama: nama,
-        catatan: catatan.isEmpty ? null : catatan,
-      );
+      if (sedangEdit) {
+        await repositoriPiutang.perbaruiPiutang(
+          id: sedangMengedit!.id,
+          nama: nama,
+          catatan: catatan.isEmpty ? null : catatan,
+        );
+      } else {
+        await repositoriPiutang.buatPiutang(
+          nama: nama,
+          catatan: catatan.isEmpty ? null : catatan,
+        );
+      }
       return true;
     } catch (_) {
       galat.value = 'Gagal menyimpan piutang. Silakan coba lagi.';

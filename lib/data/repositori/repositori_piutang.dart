@@ -57,6 +57,22 @@ class RepositoriPiutang {
     return id;
   }
 
+  Future<void> perbaruiPiutang({
+    required String id,
+    required String nama,
+    String? catatan,
+  }) async {
+    await (_database.update(_database.piutang)
+          ..where((tabel) => tabel.id.equals(id)))
+        .write(
+          PiutangCompanion(
+            nama: Value(nama),
+            catatan: Value(catatan),
+            diperbaruiPada: Value(DateTime.now()),
+          ),
+        );
+  }
+
   Future<void> catatPinjaman({
     required String piutangId,
     required String akunDanaId,

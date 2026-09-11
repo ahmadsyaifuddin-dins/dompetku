@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../data/database/database.dart';
 import '../../data/model/enum_dompetku.dart';
+import '../../inti/layanan/layanan_preferensi.dart';
 import '../../komponen/masukan/masukan_nominal.dart';
 import '../../komponen/masukan/pilih_tanggal.dart';
 import '../../komponen/snackbar/snackbar_dompetku.dart';
@@ -22,6 +23,7 @@ class HalamanFormTransaksi extends StatelessWidget {
       repositoriTransaksi: Get.find(),
       repositoriAkunDana: Get.find(),
       repositoriKategori: Get.find(),
+      layananPreferensi: Get.find<LayananPreferensi>(),
       sedangMengedit: sedangMengedit,
     ));
     final judul =

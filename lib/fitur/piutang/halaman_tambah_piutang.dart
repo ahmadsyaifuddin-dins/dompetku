@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../data/database/database.dart';
 import '../../data/repositori/repositori_piutang.dart';
 import '../../komponen/snackbar/snackbar_dompetku.dart';
 import '../../komponen/tombol/tombol_utama.dart';
@@ -11,12 +12,20 @@ class HalamanTambahPiutang extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sedangMengedit =
+        Get.arguments is PiutangData ? Get.arguments as PiutangData : null;
     final pengontrol = Get.put(
-      FormPiutangController(repositoriPiutang: Get.find<RepositoriPiutang>()),
+      FormPiutangController(
+        repositoriPiutang: Get.find<RepositoriPiutang>(),
+        sedangMengedit: sedangMengedit,
+      ),
     );
+    final sedangEdit = sedangMengedit != null;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Tambah Piutang')),
+      appBar: AppBar(
+        title: Text(sedangEdit ? 'Ubah Piutang' : 'Tambah Piutang'),
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -25,7 +34,7 @@ class HalamanTambahPiutang extends StatelessWidget {
             TextField(
               controller: pengontrol.namaController,
               textCapitalization: TextCapitalization.words,
-              autofocus: true,
+              autofocus: !sedangEdit,
               decoration: const InputDecoration(
                 labelText: 'Nama Orang',
                 hintText: 'Misal: Andi',
@@ -59,7 +68,7 @@ class HalamanTambahPiutang extends StatelessWidget {
             }),
             Obx(
               () => TombolUtama(
-                label: 'Simpan Piutang',
+                label: sedangEdit ? 'Perbarui Piutang' : 'Simpan Piutang',
                 ikon: Icons.check_rounded,
                 pemuatan: pengontrol.menyimpan.value,
                 onDitekan: () async {
@@ -68,7 +77,9 @@ class HalamanTambahPiutang extends StatelessWidget {
                   tampilkanSnackbarDompetku(
                     jenis: JenisSnackbar.sukses,
                     judul: 'Berhasil',
-                    pesan: 'Piutang baru ditambahkan.',
+                    pesan: sedangEdit
+                        ? 'Piutang diperbarui.'
+                        : 'Piutang baru ditambahkan.',
                   );
                   Get.back();
                 },

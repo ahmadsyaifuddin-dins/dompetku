@@ -8,6 +8,7 @@ import '../../data/model/enum_dompetku.dart';
 import '../../data/repositori/repositori_akun_dana.dart';
 import '../../data/repositori/repositori_kategori.dart';
 import '../../data/repositori/repositori_transaksi.dart';
+import '../../inti/layanan/layanan_preferensi.dart';
 import '../../inti/utilitas/format_rupiah.dart';
 import '../../inti/validasi/validasi_transaksi.dart';
 import 'draft_transaksi_ocr.dart';
@@ -16,6 +17,7 @@ class FormTransaksiController extends GetxController {
   final RepositoriTransaksi repositoriTransaksi;
   final RepositoriAkunDana repositoriAkunDana;
   final RepositoriKategori repositoriKategori;
+  final LayananPreferensi? layananPreferensi;
 
   final JenisTransaksi jenis;
   final TransaksiData? sedangMengedit;
@@ -39,6 +41,7 @@ class FormTransaksiController extends GetxController {
     required this.repositoriTransaksi,
     required this.repositoriAkunDana,
     required this.repositoriKategori,
+    this.layananPreferensi,
     TransaksiData? sedangMengedit,
     DraftTransaksiOCR? draft,
   })  : sedangMengedit = sedangMengedit,
@@ -81,6 +84,16 @@ class FormTransaksiController extends GetxController {
       final idDraft = draft?.kategoriId;
       if (idDraft != null && data.any((kategori) => kategori.id == idDraft)) {
         kategoriId.value = idDraft;
+        return;
+      }
+      if (sedangMengedit != null) return;
+      if (kategoriId.value != null || data.isEmpty) return;
+      final layanan = layananPreferensi;
+      if (layanan == null) return;
+      final idBawaan = layanan.ambilKategoriBawaan(jenis);
+      if (idBawaan != null &&
+          data.any((kategori) => kategori.id == idBawaan)) {
+        kategoriId.value = idBawaan;
       }
     });
   }

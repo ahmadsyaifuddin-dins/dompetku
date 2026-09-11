@@ -4,18 +4,25 @@ import 'package:get/get.dart';
 import '../../data/database/database.dart';
 import '../../data/model/enum_dompetku.dart';
 import '../../data/repositori/repositori_kategori.dart';
+import '../../inti/layanan/layanan_preferensi.dart';
 
 class KategoriController extends GetxController {
   final RepositoriKategori repositori;
+  final LayananPreferensi layananPreferensi;
 
   final semuaKategori = <KategoriData>[].obs;
   final tab = JenisTransaksi.pengeluaran.obs;
+  final bawaanPemasukan = RxnString();
+  final bawaanPengeluaran = RxnString();
   final namaController = TextEditingController();
   final ikon = RxnString();
   final menyimpan = false.obs;
   final galat = RxnString();
 
-  KategoriController({required this.repositori});
+  KategoriController({
+    required this.repositori,
+    required this.layananPreferensi,
+  });
 
   List<KategoriData> untuk(JenisTransaksi jenis) {
     return semuaKategori.where((k) => k.jenis == jenis).toList();
@@ -27,12 +34,45 @@ class KategoriController extends GetxController {
         .toList();
   }
 
+  String? bawaanUntuk(JenisTransaksi jenis) {
+    return jenis == JenisTransaksi.pemasukan
+        ? bawaanPemasukan.value
+        : bawaanPengeluaran.value;
+  }
+
   @override
   void onInit() {
     super.onInit();
+    bawaanPemasukan.value =
+        layananPreferensi.ambilKategoriBawaan(JenisTransaksi.pemasukan);
+    bawaanPengeluaran.value =
+        layananPreferensi.ambilKategoriBawaan(JenisTransaksi.pengeluaran);
     repositori.pantauSemua().listen((data) {
       semuaKategori.value = data;
     });
+  }
+
+  Future<bool> aturBawaan(KategoriData kategori) async {
+    await layananPreferensi.simpanKategoriBawaan(
+      kategori.jenis,
+      kategori.id,
+    );
+    if (kategori.jenis == JenisTransaksi.pemasukan) {
+      bawaanPemasukan.value = kategori.id;
+    } else {
+      bawaanPengeluaran.value = kategori.id;
+    }
+    return true;
+  }
+
+  Future<bool> hapusBawaan(JenisTransaksi jenis) async {
+    await layananPreferensi.hapusKategoriBawaan(jenis);
+    if (jenis == JenisTransaksi.pemasukan) {
+      bawaanPemasukan.value = null;
+    } else {
+      bawaanPengeluaran.value = null;
+    }
+    return true;
   }
 
   @override

@@ -8,6 +8,7 @@ import '../../inti/layanan/layanan_saldo.dart';
 import '../../inti/utilitas/format_rupiah.dart';
 import '../../inti/utilitas/format_tanggal.dart';
 import '../../komponen/keadaan/keadaan_kosong.dart';
+import '../../utama/rute.dart';
 import 'detail_piutang_controller.dart';
 import 'lembar_aksi_piutang.dart';
 
@@ -25,9 +26,25 @@ class HalamanDetailPiutang extends StatelessWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Detail Piutang')),
+      appBar: AppBar(
+        title: const Text('Detail Piutang'),
+        actions: [
+          IconButton(
+            tooltip: 'Ubah Data',
+            icon: const Icon(Icons.edit_rounded),
+            onPressed: () async {
+              await Get.toNamed(
+                Rute.tambahPiutang,
+                arguments: pengontrol.piutang.value,
+              );
+              await pengontrol.muatUlang();
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Obx(() {
+          final piutang = pengontrol.piutang.value!;
           final sisa = pengontrol.sisa;
           final lunas = sisa <= 0;
           return Column(

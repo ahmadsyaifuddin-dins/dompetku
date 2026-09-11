@@ -6,10 +6,13 @@ import '../../data/database/database.dart';
 import '../../data/model/enum_dompetku.dart';
 import '../../data/repositori/repositori_kategori.dart';
 import '../../inti/konstanta/ikon_map.dart';
+import '../../inti/layanan/layanan_preferensi.dart';
 import '../../komponen/keadaan/keadaan_kosong.dart';
 import '../../komponen/snackbar/snackbar_dompetku.dart';
 import '../../komponen/tombol/tombol_utama.dart';
 import 'kategori_controller.dart';
+
+enum _AksiKategori { aturBawaan, nonaktifkan }
 
 class HalamanKategori extends StatelessWidget {
   const HalamanKategori({super.key});
@@ -17,7 +20,10 @@ class HalamanKategori extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pengontrol = Get.put(
-      KategoriController(repositori: Get.find<RepositoriKategori>()),
+      KategoriController(
+        repositori: Get.find<RepositoriKategori>(),
+        layananPreferensi: Get.find<LayananPreferensi>(),
+      ),
     );
 
     return Scaffold(
@@ -107,6 +113,26 @@ class HalamanKategori extends StatelessWidget {
     KategoriData kategori,
   ) {
     final tema = Theme.of(context);
+    final bawaan = pengontrol.bawaanUntuk(kategori.jenis) == kategori.id;
+    final Text? keterangan;
+    if (kategori.aktif && bawaan) {
+      keterangan = Text(
+        'Bawaan saat mencatat',
+        style: TextStyle(
+          color: tema.colorScheme.onSurfaceVariant,
+        ),
+      );
+    } else if (!kategori.aktif) {
+      keterangan = Text(
+        'Tidak aktif',
+        style: TextStyle(
+          color: tema.colorScheme.onSurfaceVariant,
+          fontStyle: FontStyle.italic,
+        ),
+      );
+    } else {
+      keterangan = null;
+    }
     return Card(
       child: ListTile(
         leading: CircleAvatar(
@@ -115,27 +141,93 @@ class HalamanKategori extends StatelessWidget {
           child: Icon(ikonUntukKategori(kategori.ikon)),
         ),
         title: Text(kategori.nama),
-        subtitle: kategori.aktif
-            ? null
-            : Text(
-                'Tidak aktif',
-                style: TextStyle(
-                  color: tema.colorScheme.onSurfaceVariant,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
+        subtitle: keterangan,
         trailing: kategori.aktif
-            ? IconButton(
-                icon: const Icon(Icons.more_vert_rounded),
-                onPressed: () => _konfirmasiNonaktifkan(
+            ? PopupMenuButton<_AksiKategori>(
+                tooltip: 'Opsi Kategori',
+                onSelected: (aksi) => _pilihAksi(
                   context,
                   pengontrol,
                   kategori,
+                  aksi,
                 ),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: _AksiKategori.aturBawaan,
+                    child: Row(
+                      children: [
+                        Icon(
+                          bawaan
+                              ? Icons.star_rounded
+                              : Icons.star_outline_rounded,
+                          color: bawaan
+                              ? tema.colorScheme.primary
+                              : null,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          bawaan ? 'Hapus Bawaan' : 'Jadikan Bawaan',
+                        ),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: _AksiKategori.nonaktifkan,
+                    child: Row(
+                      children: [
+                        Icon(Icons.visibility_off_rounded),
+                        SizedBox(width: 12),
+                        Text('Nonaktifkan'),
+                      ],
+                    ),
+                  ),
+                ],
               )
             : null,
       ),
     );
+  }
+
+  void _pilihAksi(
+    BuildContext context,
+    KategoriController pengontrol,
+    KategoriData kategori,
+    _AksiKategori aksi,
+  ) {
+    switch (aksi) {
+      case _AksiKategori.aturBawaan:
+        _setelBawaan(context, pengontrol, kategori);
+      case _AksiKategori.nonaktifkan:
+        _konfirmasiNonaktifkan(context, pengontrol, kategori);
+    }
+  }
+
+  Future<void> _setelBawaan(
+    BuildContext context,
+    KategoriController pengontrol,
+    KategoriData kategori,
+  ) async {
+    final jenis = kategori.jenis == JenisTransaksi.pemasukan
+        ? 'pemasukan'
+        : 'pengeluaran';
+    final sudahBawaan =
+        pengontrol.bawaanUntuk(kategori.jenis) == kategori.id;
+    if (sudahBawaan) {
+      await pengontrol.hapusBawaan(kategori.jenis);
+      tampilkanSnackbarDompetku(
+        jenis: JenisSnackbar.sukses,
+        judul: 'Berhasil',
+        pesan: 'Kategori bawaan untuk $jenis dihapus.',
+      );
+    } else {
+      await pengontrol.aturBawaan(kategori);
+      tampilkanSnackbarDompetku(
+        jenis: JenisSnackbar.sukses,
+        judul: 'Berhasil',
+        pesan: '${kategori.nama} dipilih otomatis saat '
+            'mencatat $jenis.',
+      );
+    }
   }
 
   void _konfirmasiNonaktifkan(

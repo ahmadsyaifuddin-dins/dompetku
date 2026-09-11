@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:rive/rive.dart';
 
 import 'komponen/pemuatan/pemuatan_spinkit.dart';
 import 'utama/aplikasi.dart';
@@ -27,6 +28,12 @@ class _SplashDompetkuState extends State<SplashDompetku> {
 
   Future<void> _siapkan() async {
     await initializeDateFormatting('id_ID', null);
+    try {
+      await RiveNative.init();
+    } catch (_) {
+      // Rive hanya untuk ikon animasi dialog lib pihak ketiga;
+      // kegagalan inisialisasi tidak boleh menghalangi aplikasi.
+    }
     await Dependensi.inisialisasi();
     if (!mounted) return;
     runApp(const AplikasiDompetKu());

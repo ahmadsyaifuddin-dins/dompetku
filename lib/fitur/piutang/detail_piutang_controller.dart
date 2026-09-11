@@ -9,7 +9,7 @@ import '../../data/repositori/repositori_piutang.dart';
 class DetailPiutangController extends GetxController {
   final RepositoriPiutang repositoriPiutang;
 
-  final PiutangData piutang;
+  final piutang = Rxn<PiutangData>();
   final riwayat = <RiwayatPiutangData>[].obs;
   final menyimpan = false.obs;
   final galat = RxnString();
@@ -18,8 +18,10 @@ class DetailPiutangController extends GetxController {
 
   DetailPiutangController({
     required this.repositoriPiutang,
-    required this.piutang,
-  });
+    required PiutangData piutang,
+  }) {
+    this.piutang.value = piutang;
+  }
 
   int get sisa {
     var totalPinjaman = 0;
@@ -40,8 +42,17 @@ class DetailPiutangController extends GetxController {
   void onInit() {
     super.onInit();
     _langganan = repositoriPiutang
-        .pantauRiwayat(piutang.id)
+        .pantauRiwayat(piutang.value!.id)
         .listen((data) => riwayat.value = data);
+  }
+
+  Future<void> muatUlang() async {
+    final terbaru = await repositoriPiutang.ambilBerdasarkanId(
+      piutang.value!.id,
+    );
+    if (terbaru != null) {
+      piutang.value = terbaru;
+    }
   }
 
   Future<bool> catat({
@@ -59,11 +70,12 @@ class DetailPiutangController extends GetxController {
     if (menyimpan.value) return false;
 
     menyimpan.value = true;
+    final idPiutang = piutang.value!.id;
     try {
       switch (jenis) {
         case JenisRiwayat.pinjaman:
           await repositoriPiutang.catatPinjaman(
-            piutangId: piutang.id,
+            piutangId: idPiutang,
             akunDanaId: akunDanaId,
             nominal: nominal,
             tanggal: tanggal,
@@ -71,7 +83,7 @@ class DetailPiutangController extends GetxController {
           );
         case JenisRiwayat.tambahan:
           await repositoriPiutang.catatTambahan(
-            piutangId: piutang.id,
+            piutangId: idPiutang,
             akunDanaId: akunDanaId,
             nominal: nominal,
             tanggal: tanggal,
@@ -79,7 +91,7 @@ class DetailPiutangController extends GetxController {
           );
         case JenisRiwayat.pembayaran:
           await repositoriPiutang.catatPembayaran(
-            piutangId: piutang.id,
+            piutangId: idPiutang,
             akunDanaId: akunDanaId,
             nominal: nominal,
             tanggal: tanggal,
