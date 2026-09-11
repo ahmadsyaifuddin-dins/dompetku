@@ -2,4 +2,6 @@
 
 2. kita akan menambahkan halaman seperti halaman login (namun bukan pula login jadi ini halaman awal ketika aplikasi sudah di install gitu) nah fungsi nya itu buat input Nama Asli dan Nomor HP yg aktif dan digunakan di WA untuk apa hal ini buat aku mengetahui siapa yg install dan pake aplikasi aku jadi nanti setelah si pengguna yg install ini pasang dan input datanya maka nanti akan otomatis akan mengirimkan notif ke aku (nomor wa ku dan nomor dia juga) ke Whatsapp ku nanti si Nasrulia telah install dan menggunakan aplikasi dompetku nah sedangkan si pengguna itu nanti masuk ke notif wa nya juga yaitu terima kasih telah menginstall dan blabala bla kalimatnya nanti kamu atur btw pake api gateway fonnte aja
 
+btw ini token dari fonnte 3xxxxx ohiya untuk nanti pada saat mau pada di halaman semacam login itu nanti kasih bypass ya untuk diri ku sendiri hanya dev aja yg tau rahasia ini yaitu misal menghold 3 detik pada sebuah logo jadi bisa melewati (hal ini aku lakukan untuk testing testing masa ketika run build input input lgi kan bikin pemborosan api) sekalian juga pada inputan dibawah nya kasih tau user bahwa pastikan nomor wa yg di input benar dan pastikan user tidak boleh iseng isi nya 
+
 3. kita juga bisa ubah nama si piutang dan catatan kalau kalau ada kesalahan nulis (DONE)

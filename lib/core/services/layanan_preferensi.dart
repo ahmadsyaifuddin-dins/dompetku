@@ -4,6 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class LayananPreferensi {
   static const String _kunciTema = 'mode_tema';
   static const String _awalanKunciKategoriBawaan = 'kategori_bawaan';
+  static const String _kunciSudahInstal = 'sudah_instal';
+  static const String _kunciNamaPengguna = 'nama_pengguna';
+  static const String _kunciNomorPengguna = 'nomor_pengguna';
 
   final SharedPreferences _preferensi;
 
@@ -42,5 +45,24 @@ class LayananPreferensi {
 
   Future<void> hapusKategoriBawaan(JenisTransaksi jenis) async {
     await _preferensi.remove(_kunciKategoriBawaan(jenis));
+  }
+
+  bool get sudahInstal => _preferensi.getBool(_kunciSudahInstal) ?? false;
+
+  String? get namaPengguna => _preferensi.getString(_kunciNamaPengguna);
+
+  String? get nomorPengguna => _preferensi.getString(_kunciNomorPengguna);
+
+  Future<void> simpanProfil({
+    required String nama,
+    required String nomor,
+  }) async {
+    await _preferensi.setString(_kunciNamaPengguna, nama);
+    await _preferensi.setString(_kunciNomorPengguna, nomor);
+    await _preferensi.setBool(_kunciSudahInstal, true);
+  }
+
+  Future<void> tandaiSudahInstal() async {
+    await _preferensi.setBool(_kunciSudahInstal, true);
   }
 }

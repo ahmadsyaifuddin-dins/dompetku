@@ -70,9 +70,16 @@ class HalamanTentang extends StatelessWidget {
             Card(
               child: ListTile(
                 leading: CircleAvatar(
+                  radius: 24,
                   backgroundColor: warna.secondaryContainer,
-                  foregroundColor: warna.onSecondaryContainer,
-                  child: const Icon(Icons.person_rounded),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/developer.png',
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
                 title: const Text('Ahmad Syaifuddin, S.Kom',
                     style: TextStyle(fontWeight: FontWeight.w700)),

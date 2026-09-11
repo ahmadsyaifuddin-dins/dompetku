@@ -6,6 +6,7 @@ import '../data/repositori/repositori_kategori.dart';
 import '../data/repositori/repositori_piutang.dart';
 import '../data/repositori/repositori_transaksi.dart';
 import '../data/repositori/repositori_transfer.dart';
+import '../core/services/layanan_fonnte.dart';
 import '../core/services/layanan_preferensi.dart';
 import '../core/services/layanan_saldo.dart';
 import '../core/theme/pengontrol_tema.dart';
@@ -13,6 +14,7 @@ import '../core/theme/pengontrol_tema.dart';
 class Dependensi {
   static Future<void> inisialisasi() async {
     await Get.putAsync(() => LayananPreferensi.buat());
+    Get.put<LayananFonnte>(LayananFonnte());
 
     final database = DompetKuDatabase();
     Get.put<DompetKuDatabase>(database);
