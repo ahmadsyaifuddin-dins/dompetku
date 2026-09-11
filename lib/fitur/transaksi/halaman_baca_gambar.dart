@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import '../../komponen/snackbar/snackbar_dompetku.dart';
 import '../../komponen/tombol/tombol_utama.dart';
-import '../../utama/rute.dart';
+import '../../app/routes.dart';
 import 'draft_transaksi_ocr.dart';
 
 /// Pratinjau alur "Baca dari Gambar".

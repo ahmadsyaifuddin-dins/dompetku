@@ -1,6 +1,6 @@
 import 'package:dompetku/data/database/database.dart';
 import 'package:dompetku/data/model/enum_dompetku.dart';
-import 'package:dompetku/inti/utilitas/hitung_analitik.dart';
+import 'package:dompetku/core/utils/hitung_analitik.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 TransaksiData _transaksi(

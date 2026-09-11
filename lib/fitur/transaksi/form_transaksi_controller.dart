@@ -8,9 +8,9 @@ import '../../data/model/enum_dompetku.dart';
 import '../../data/repositori/repositori_akun_dana.dart';
 import '../../data/repositori/repositori_kategori.dart';
 import '../../data/repositori/repositori_transaksi.dart';
-import '../../inti/layanan/layanan_preferensi.dart';
-import '../../inti/utilitas/format_rupiah.dart';
-import '../../inti/validasi/validasi_transaksi.dart';
+import '../../core/services/layanan_preferensi.dart';
+import '../../core/utils/format_rupiah.dart';
+import '../../core/validation/validasi_transaksi.dart';
 import 'draft_transaksi_ocr.dart';
 
 class FormTransaksiController extends GetxController {

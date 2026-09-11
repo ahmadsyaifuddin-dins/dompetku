@@ -5,14 +5,14 @@ import 'package:get/get.dart';
 import '../../data/database/database.dart';
 import '../../data/model/enum_dompetku.dart';
 import '../../data/repositori/repositori_kategori.dart';
-import '../../inti/konstanta/ikon_map.dart';
-import '../../inti/layanan/layanan_preferensi.dart';
+import '../../core/constants/ikon_map.dart';
+import '../../core/services/layanan_preferensi.dart';
 import '../../komponen/keadaan/keadaan_kosong.dart';
 import '../../komponen/snackbar/snackbar_dompetku.dart';
 import '../../komponen/tombol/tombol_utama.dart';
 import 'kategori_controller.dart';
 
-enum _AksiKategori { aturBawaan, nonaktifkan }
+enum _AksiKategori { ubah, aturBawaan, nonaktifkan }
 
 class HalamanKategori extends StatelessWidget {
   const HalamanKategori({super.key});
@@ -152,6 +152,16 @@ class HalamanKategori extends StatelessWidget {
                   aksi,
                 ),
                 itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: _AksiKategori.ubah,
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit_rounded),
+                        SizedBox(width: 12),
+                        Text('Ubah'),
+                      ],
+                    ),
+                  ),
                   PopupMenuItem(
                     value: _AksiKategori.aturBawaan,
                     child: Row(
@@ -195,6 +205,8 @@ class HalamanKategori extends StatelessWidget {
     _AksiKategori aksi,
   ) {
     switch (aksi) {
+      case _AksiKategori.ubah:
+        _bukaFormKategori(context, pengontrol, sedangMengedit: kategori);
       case _AksiKategori.aturBawaan:
         _setelBawaan(context, pengontrol, kategori);
       case _AksiKategori.nonaktifkan:
@@ -267,24 +279,43 @@ class HalamanKategori extends StatelessWidget {
     BuildContext context,
     KategoriController pengontrol,
   ) {
+    _bukaFormKategori(context, pengontrol);
+  }
+
+  void _bukaFormKategori(
+    BuildContext context,
+    KategoriController pengontrol, {
+    KategoriData? sedangMengedit,
+  }) {
+    pengontrol.namaController.text = sedangMengedit?.nama ?? '';
+    pengontrol.ikon.value = sedangMengedit?.ikon;
     Get.bottomSheet(
       isScrollControlled: true,
-      _FormTambahKategori(pengontrol: pengontrol),
+      _FormKategori(
+        pengontrol: pengontrol,
+        sedangMengedit: sedangMengedit,
+      ),
     );
   }
 }
 
-class _FormTambahKategori extends StatelessWidget {
+class _FormKategori extends StatelessWidget {
   final KategoriController pengontrol;
+  final KategoriData? sedangMengedit;
 
-  const _FormTambahKategori({required this.pengontrol});
+  const _FormKategori({
+    required this.pengontrol,
+    this.sedangMengedit,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final jenis = pengontrol.tab.value;
+    final jenis = sedangMengedit?.jenis ?? pengontrol.tab.value;
     final kunciIkon = jenis == JenisTransaksi.pemasukan
         ? kunciIkonKategoriPemasukan
         : kunciIkonKategoriPengeluaran;
+    final mengubah = sedangMengedit != null;
+    final judul = mengubah ? 'Ubah Kategori' : 'Tambah Kategori';
 
     return Padding(
       padding: EdgeInsets.only(
@@ -297,9 +328,9 @@ class _FormTambahKategori extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'Tambah Kategori',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+          Text(
+            judul,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -341,22 +372,29 @@ class _FormTambahKategori extends StatelessWidget {
           const SizedBox(height: 16),
           Obx(
             () => TombolUtama(
-              label: 'Simpan Kategori',
+              label: mengubah ? 'Perbarui Kategori' : 'Simpan Kategori',
               ikon: Icons.check_rounded,
               pemuatan: pengontrol.menyimpan.value,
               onDitekan: () async {
-                final berhasil = await pengontrol.tambah(
-                  jenis: jenis,
-                  nama: pengontrol.namaController.text,
-                  ikonKunci: pengontrol.ikon.value ?? kunciIkon.first,
-                );
+                final berhasil = mengubah
+                    ? await pengontrol.perbarui(
+                        sedangMengedit!,
+                        nama: pengontrol.namaController.text,
+                        ikonKunci: pengontrol.ikon.value ?? kunciIkon.first,
+                      )
+                    : await pengontrol.tambah(
+                        jenis: jenis,
+                        nama: pengontrol.namaController.text,
+                        ikonKunci: pengontrol.ikon.value ?? kunciIkon.first,
+                      );
                 if (!berhasil) return;
                 Get.back();
                 tampilkanSnackbarDompetku(
                   jenis: JenisSnackbar.sukses,
                   judul: 'Berhasil',
-                  pesan:
-                      'Kategori ${pengontrol.namaController.text.trim()} ditambahkan.',
+                  pesan: mengubah
+                      ? 'Kategori diperbarui.'
+                      : 'Kategori ${pengontrol.namaController.text.trim()} ditambahkan.',
                 );
               },
             ),

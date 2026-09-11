@@ -2,8 +2,8 @@ import 'package:get/get.dart';
 
 import '../../data/database/database.dart';
 import '../../data/repositori/repositori_piutang.dart';
-import '../../inti/layanan/layanan_saldo.dart';
-import '../../utama/rute.dart';
+import '../../core/services/layanan_saldo.dart';
+import '../../app/routes.dart';
 import 'hitung_sisa_piutang.dart';
 
 class PiutangController extends GetxController {

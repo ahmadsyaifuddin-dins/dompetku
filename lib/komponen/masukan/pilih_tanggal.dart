@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../inti/utilitas/format_tanggal.dart';
+import '../../core/utils/format_tanggal.dart';
 
 class PilihTanggal extends StatelessWidget {
   final DateTime tanggal;

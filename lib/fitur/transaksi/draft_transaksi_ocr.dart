@@ -1,5 +1,5 @@
 import '../../data/model/enum_dompetku.dart';
-import '../../inti/utilitas/format_rupiah.dart';
+import '../../core/utils/format_rupiah.dart';
 
 /// Draft hasil OCR yang belum menjadi transaksi final.
 class DraftTransaksiOCR {

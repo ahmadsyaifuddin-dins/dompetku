@@ -4,11 +4,11 @@ import 'package:get/get.dart';
 import '../../data/database/database.dart';
 import '../../data/model/enum_dompetku.dart';
 import '../../data/repositori/repositori_piutang.dart';
-import '../../inti/layanan/layanan_saldo.dart';
-import '../../inti/utilitas/format_rupiah.dart';
-import '../../inti/utilitas/format_tanggal.dart';
+import '../../core/services/layanan_saldo.dart';
+import '../../core/utils/format_rupiah.dart';
+import '../../core/utils/format_tanggal.dart';
 import '../../komponen/keadaan/keadaan_kosong.dart';
-import '../../utama/rute.dart';
+import '../../app/routes.dart';
 import 'detail_piutang_controller.dart';
 import 'lembar_aksi_piutang.dart';
 

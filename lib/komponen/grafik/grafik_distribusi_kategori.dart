@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../inti/konstanta/ikon_map.dart';
-import '../../inti/tema/warna_tema.dart';
-import '../../inti/utilitas/format_rupiah.dart';
-import '../../inti/utilitas/hitung_analitik.dart';
+import '../../core/constants/ikon_map.dart';
+import '../../core/theme/warna_tema.dart';
+import '../../core/utils/format_rupiah.dart';
+import '../../core/utils/hitung_analitik.dart';
 
 /// Daftar batang horizontal distribusi pengeluaran per kategori,
 /// dengan ikon, nama, nominal, dan persentase.

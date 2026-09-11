@@ -6,9 +6,9 @@ import '../data/repositori/repositori_kategori.dart';
 import '../data/repositori/repositori_piutang.dart';
 import '../data/repositori/repositori_transaksi.dart';
 import '../data/repositori/repositori_transfer.dart';
-import '../inti/layanan/layanan_preferensi.dart';
-import '../inti/layanan/layanan_saldo.dart';
-import '../inti/tema/pengontrol_tema.dart';
+import '../core/services/layanan_preferensi.dart';
+import '../core/services/layanan_saldo.dart';
+import '../core/theme/pengontrol_tema.dart';
 
 class Dependensi {
   static Future<void> inisialisasi() async {

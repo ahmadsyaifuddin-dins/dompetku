@@ -1,9 +1,9 @@
 import 'package:dompetku/data/database/database.dart';
 import 'package:dompetku/data/model/enum_dompetku.dart';
 import 'package:dompetku/data/model/ringkasan_entri.dart';
-import 'package:dompetku/inti/utilitas/gabung_entri_histori.dart';
-import 'package:dompetku/inti/utilitas/hitung_saldo.dart';
-import 'package:dompetku/inti/validasi/validasi_transaksi.dart';
+import 'package:dompetku/core/utils/gabung_entri_histori.dart';
+import 'package:dompetku/core/utils/hitung_saldo.dart';
+import 'package:dompetku/core/validation/validasi_transaksi.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 AkunDanaData _akun({

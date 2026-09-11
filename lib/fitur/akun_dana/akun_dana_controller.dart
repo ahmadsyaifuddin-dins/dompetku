@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import '../../data/database/database.dart';
 import '../../data/model/enum_dompetku.dart';
 import '../../data/repositori/repositori_akun_dana.dart';
-import '../../inti/layanan/layanan_saldo.dart';
-import '../../inti/utilitas/format_rupiah.dart';
+import '../../core/services/layanan_saldo.dart';
+import '../../core/utils/format_rupiah.dart';
 
 class AkunDanaController extends GetxController {
   final RepositoriAkunDana repositori;

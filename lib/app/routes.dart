@@ -13,7 +13,7 @@ import '../fitur/transaksi/halaman_form_transaksi.dart';
 import '../fitur/transaksi/halaman_form_transfer.dart';
 import '../fitur/transaksi/halaman_review_ocr.dart';
 import '../fitur/transaksi/halaman_transaksi.dart';
-import 'halaman_induk.dart';
+import 'main_page.dart';
 
 class Rute {
   Rute._();

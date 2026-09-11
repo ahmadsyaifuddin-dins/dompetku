@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 
 import '../../data/model/ringkasan_entri.dart';
-import '../../inti/layanan/layanan_saldo.dart';
+import '../../core/services/layanan_saldo.dart';
 
 List<EntriHistori> saringHistori(
   List<EntriHistori> histori, {

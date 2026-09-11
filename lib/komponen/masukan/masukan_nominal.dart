@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../inti/utilitas/format_rupiah.dart';
+import '../../core/utils/format_rupiah.dart';
 
 class MasukanNominal extends StatefulWidget {
   final TextEditingController controller;

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../data/model/enum_dompetku.dart';
-import '../layanan/layanan_preferensi.dart';
+import '../services/layanan_preferensi.dart';
 
 class PengontrolTema extends GetxController {
   final LayananPreferensi _layananPreferensi;

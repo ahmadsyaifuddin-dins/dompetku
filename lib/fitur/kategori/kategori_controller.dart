@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../../data/database/database.dart';
 import '../../data/model/enum_dompetku.dart';
 import '../../data/repositori/repositori_kategori.dart';
-import '../../inti/layanan/layanan_preferensi.dart';
+import '../../core/services/layanan_preferensi.dart';
 
 class KategoriController extends GetxController {
   final RepositoriKategori repositori;
@@ -118,6 +118,35 @@ class KategoriController extends GetxController {
       return true;
     } catch (_) {
       galat.value = 'Gagal menonaktifkan kategori. Silakan coba lagi.';
+      return false;
+    } finally {
+      menyimpan.value = false;
+    }
+  }
+
+  Future<bool> perbarui(
+    KategoriData kategori, {
+    String? nama,
+    String? ikonKunci,
+  }) async {
+    galat.value = null;
+    final bersih = nama?.trim() ?? namaController.text.trim();
+    if (bersih.isEmpty) {
+      galat.value = 'Nama kategori tidak boleh kosong.';
+      return false;
+    }
+    if (menyimpan.value) return false;
+
+    menyimpan.value = true;
+    try {
+      await repositori.perbarui(
+        id: kategori.id,
+        nama: bersih,
+        ikon: ikonKunci,
+      );
+      return true;
+    } catch (_) {
+      galat.value = 'Gagal memperbarui kategori. Silakan coba lagi.';
       return false;
     } finally {
       menyimpan.value = false;

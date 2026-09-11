@@ -6,10 +6,10 @@ import '../../data/database/database.dart';
 import '../../data/model/ringkasan_entri.dart';
 import '../../data/repositori/repositori_transaksi.dart';
 import '../../data/repositori/repositori_transfer.dart';
-import '../../inti/layanan/layanan_saldo.dart';
-import '../../inti/utilitas/format_rupiah.dart';
+import '../../core/services/layanan_saldo.dart';
+import '../../core/utils/format_rupiah.dart';
 import '../../komponen/snackbar/snackbar_dompetku.dart';
-import '../../utama/rute.dart';
+import '../../app/routes.dart';
 
 /// Menampilkan lembar aksi untuk sebuah entri histori
 /// (Detail, Edit, dan Hapus).

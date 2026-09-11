@@ -61,4 +61,19 @@ class RepositoriKategori {
           ..where((tabel) => tabel.id.equals(id)))
         .write(const KategoriCompanion(aktif: Value(false)));
   }
+
+  Future<void> perbarui({
+    required String id,
+    required String nama,
+    String? ikon,
+  }) async {
+    await (_database.update(_database.kategori)
+          ..where((tabel) => tabel.id.equals(id)))
+        .write(
+          KategoriCompanion(
+            nama: Value(nama),
+            ikon: Value(ikon),
+          ),
+        );
+  }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../inti/tema/warna_tema.dart';
-import '../../inti/utilitas/format_rupiah.dart';
+import '../../core/theme/warna_tema.dart';
+import '../../core/utils/format_rupiah.dart';
 
 enum JenisArus { pemasukan, pengeluaran }
 

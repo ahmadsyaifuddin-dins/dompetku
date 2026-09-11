@@ -6,8 +6,8 @@ import '../fitur/pengaturan/halaman_pengaturan.dart';
 import '../fitur/piutang/halaman_piutang.dart';
 import '../fitur/transaksi/halaman_transaksi.dart';
 import '../komponen/navigasi/bilah_navigasi.dart';
-import 'kontrol_induk.dart';
-import 'rute.dart';
+import 'main_controller.dart';
+import 'routes.dart';
 
 class HalamanInduk extends StatelessWidget {
   final int indeksAwal;

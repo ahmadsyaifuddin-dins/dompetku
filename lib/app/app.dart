@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../inti/tema/pengontrol_tema.dart';
-import '../inti/tema/tema_gelap.dart';
-import '../inti/tema/tema_terang.dart';
-import 'rute.dart';
+import '../core/theme/pengontrol_tema.dart';
+import '../core/theme/tema_gelap.dart';
+import '../core/theme/tema_terang.dart';
+import 'routes.dart';
 
 class AplikasiDompetKu extends StatelessWidget {
   const AplikasiDompetKu({super.key});

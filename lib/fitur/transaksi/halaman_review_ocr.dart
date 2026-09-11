@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../inti/utilitas/format_rupiah.dart';
-import '../../inti/utilitas/format_tanggal.dart';
+import '../../core/utils/format_rupiah.dart';
+import '../../core/utils/format_tanggal.dart';
 import 'draft_transaksi_ocr.dart';
 import 'form_transaksi_controller.dart';
 import 'halaman_form_transaksi.dart';

@@ -1,7 +1,7 @@
 import 'package:dompetku/data/database/database.dart';
 import 'package:dompetku/data/model/enum_dompetku.dart';
 import 'package:dompetku/fitur/piutang/hitung_sisa_piutang.dart';
-import 'package:dompetku/inti/utilitas/hitung_saldo.dart';
+import 'package:dompetku/core/utils/hitung_saldo.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 RiwayatPiutangData _riwayat({

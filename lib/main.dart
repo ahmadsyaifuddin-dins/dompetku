@@ -3,8 +3,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:rive/rive.dart';
 
 import 'komponen/pemuatan/pemuatan_spinkit.dart';
-import 'utama/aplikasi.dart';
-import 'utama/dependensi.dart';
+import 'app/app.dart';
+import 'app/dependencies.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -9,8 +9,8 @@ import '../../data/repositori/repositori_kategori.dart';
 import '../../data/repositori/repositori_piutang.dart';
 import '../../data/repositori/repositori_transaksi.dart';
 import '../../data/repositori/repositori_transfer.dart';
-import '../utilitas/gabung_entri_histori.dart';
-import '../utilitas/hitung_saldo.dart';
+import '../utils/gabung_entri_histori.dart';
+import '../utils/hitung_saldo.dart';
 
 class LayananSaldo extends GetxService {
   final RepositoriAkunDana repositoriAkun;

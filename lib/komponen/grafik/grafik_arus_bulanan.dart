@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../inti/tema/warna_tema.dart';
-import '../../inti/utilitas/format_rupiah.dart';
-import '../../inti/utilitas/hitung_analitik.dart';
+import '../../core/theme/warna_tema.dart';
+import '../../core/utils/format_rupiah.dart';
+import '../../core/utils/hitung_analitik.dart';
 
 /// Grafik batang berpasangan (pemasukan vs pengeluaran) — minimal, fokus
 /// pada insight, bukan meniru widget chart demo.

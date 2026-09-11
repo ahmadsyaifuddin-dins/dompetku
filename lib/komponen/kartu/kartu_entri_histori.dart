@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../data/model/ringkasan_entri.dart';
-import '../../inti/tema/warna_tema.dart';
-import '../../inti/utilitas/format_rupiah.dart';
+import '../../core/theme/warna_tema.dart';
+import '../../core/utils/format_rupiah.dart';
 
 /// Baris aktivitas/transaksi ringkas — bukan kartu, divisualkan seperti
 /// timeline agar daftar tidak terasa seperti tabel.

@@ -1,12 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../data/database/database.dart';
 import '../../data/model/enum_dompetku.dart';
-import '../../inti/konstanta/ikon_map.dart';
-import '../../inti/layanan/layanan_saldo.dart';
-import '../../inti/utilitas/format_rupiah.dart';
-import '../../inti/utilitas/hitung_analitik.dart';
+import '../../core/constants/ikon_map.dart';
+import '../../core/services/layanan_saldo.dart';
+import '../../core/utils/format_rupiah.dart';
+import '../../core/utils/hitung_analitik.dart';
 import '../../komponen/grafik/grafik_arus_bulanan.dart';
 import '../../komponen/grafik/grafik_distribusi_kategori.dart';
 import '../../komponen/kartu/kartu_arus.dart';
@@ -14,7 +16,7 @@ import '../../komponen/kartu/kartu_entri_histori.dart';
 import '../../komponen/kartu/kartu_saldo.dart';
 import '../../komponen/keadaan/keadaan_kosong.dart';
 import '../../komponen/pemuatan/pemuatan_shimmer.dart';
-import '../../utama/kontrol_induk.dart';
+import '../../app/main_controller.dart';
 import '../transaksi/papan_aksi_entri.dart';
 
 class HalamanBeranda extends StatelessWidget {
@@ -170,10 +172,17 @@ class _KepalaBeranda extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '${_sapa(waktu)} 👋',
-                  style: tema.textTheme.titleLarge
-                      ?.copyWith(fontWeight: FontWeight.w800),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _sapa(waktu),
+                      style: tema.textTheme.titleLarge
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(width: 8),
+                    const _IkonSapa(),
+                  ],
                 ),
                 const SizedBox(height: 3),
                 Text(
@@ -191,6 +200,57 @@ class _KepalaBeranda extends StatelessWidget {
             color: tema.colorScheme.onSurfaceVariant,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _IkonSapa extends StatefulWidget {
+  const _IkonSapa();
+
+  @override
+  State<_IkonSapa> createState() => _KeadaanIkonSapa();
+}
+
+class _KeadaanIkonSapa extends State<_IkonSapa>
+    with SingleTickerProviderStateMixin {
+  static const Duration _durasiLambai = Duration(milliseconds: 1100);
+  static const Duration _jeda = Duration(seconds: 3);
+
+  late final AnimationController _animasi;
+  late final Animation<double> _getar;
+  late final Timer _pemicu;
+
+  @override
+  void initState() {
+    super.initState();
+    _animasi = AnimationController(vsync: this, duration: _durasiLambai);
+    _getar = Tween<double>(begin: -0.06, end: 0.06).animate(
+      CurvedAnimation(parent: _animasi, curve: Curves.easeInOut),
+    );
+    _mulaiLambai();
+    _pemicu = Timer.periodic(_jeda, (_) => _mulaiLambai());
+  }
+
+  void _mulaiLambai() {
+    _animasi.repeat(reverse: true, count: 3);
+  }
+
+  @override
+  void dispose() {
+    _pemicu.cancel();
+    _animasi.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RotationTransition(
+      turns: _getar,
+      child: Icon(
+        Icons.waving_hand_rounded,
+        size: 26,
+        color: Theme.of(context).colorScheme.primary,
       ),
     );
   }

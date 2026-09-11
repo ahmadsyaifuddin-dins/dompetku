@@ -6,8 +6,8 @@ import 'package:get/get.dart';
 import '../../data/database/database.dart';
 import '../../data/repositori/repositori_akun_dana.dart';
 import '../../data/repositori/repositori_transfer.dart';
-import '../../inti/utilitas/format_rupiah.dart';
-import '../../inti/validasi/validasi_transaksi.dart';
+import '../../core/utils/format_rupiah.dart';
+import '../../core/validation/validasi_transaksi.dart';
 
 class FormTransferController extends GetxController {
   final RepositoriTransfer repositoriTransfer;

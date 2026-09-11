@@ -3,13 +3,13 @@ import 'package:get/get.dart';
 
 import '../../data/model/enum_dompetku.dart';
 import '../../data/model/ringkasan_entri.dart';
-import '../../inti/layanan/layanan_saldo.dart';
-import '../../inti/tema/warna_tema.dart';
-import '../../inti/utilitas/format_tanggal.dart';
+import '../../core/services/layanan_saldo.dart';
+import '../../core/theme/warna_tema.dart';
+import '../../core/utils/format_tanggal.dart';
 import '../../komponen/kartu/kartu_entri_histori.dart';
 import '../../komponen/keadaan/keadaan_kosong.dart';
 import '../../komponen/pemuatan/pemuatan_shimmer.dart';
-import '../../utama/rute.dart';
+import '../../app/routes.dart';
 import 'histori_controller.dart';
 import 'papan_aksi_entri.dart';
 

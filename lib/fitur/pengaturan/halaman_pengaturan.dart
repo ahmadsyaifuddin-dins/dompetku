@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../data/model/enum_dompetku.dart';
-import '../../inti/tema/pengontrol_tema.dart';
-import '../../utama/rute.dart';
+import '../../core/theme/pengontrol_tema.dart';
+import '../../app/routes.dart';
 
 class HalamanPengaturan extends StatelessWidget {
   const HalamanPengaturan({super.key});
