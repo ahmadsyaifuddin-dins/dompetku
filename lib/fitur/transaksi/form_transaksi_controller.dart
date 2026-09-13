@@ -47,7 +47,9 @@ class FormTransaksiController extends GetxController {
   })  : sedangMengedit = sedangMengedit,
         draft = draft {
     if (draft != null) {
-      nominalController.text = formatNominalInput(draft.nominal.toString());
+      if (draft.nominal > 0) {
+        nominalController.text = formatNominalInput(draft.nominal.toString());
+      }
       akunId.value = draft.akunDanaId;
       kategoriId.value = draft.kategoriId;
       tanggal.value = draft.tanggal;

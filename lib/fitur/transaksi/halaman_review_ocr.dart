@@ -1,38 +1,91 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/services/layanan_preferensi.dart';
 import '../../core/utils/format_rupiah.dart';
 import '../../core/utils/format_tanggal.dart';
+import '../../data/model/enum_dompetku.dart';
 import 'draft_transaksi_ocr.dart';
 import 'form_transaksi_controller.dart';
 import 'halaman_form_transaksi.dart';
 
 /// Layar periksa hasil OCR: nilai dari mesin ditampilkan untuk dikoreksi
 /// sebelum disimpan. Nilai koreksi pengguna menjadi sumber kebenaran final
-/// (PRD 15.4).
-class HalamanReviewOCR extends StatelessWidget {
+/// (PRD 15.4). Jenis transaksi bisa diubah bila hasil tebakan mesin keliru.
+class HalamanReviewOCR extends StatefulWidget {
   const HalamanReviewOCR({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final draft = Get.arguments as DraftTransaksiOCR;
-    final pengontrol = Get.put(FormTransaksiController(
-      jenis: draft.jenis,
+  State<HalamanReviewOCR> createState() => _HalamanReviewOCRState();
+}
+
+class _HalamanReviewOCRState extends State<HalamanReviewOCR> {
+  late final DraftTransaksiOCR _draft;
+  late JenisTransaksi _jenis;
+  FormTransaksiController? _pengontrol;
+
+  @override
+  void initState() {
+    super.initState();
+    _draft = Get.arguments as DraftTransaksiOCR;
+    _jenis = _draft.jenis;
+    _pengontrol = _buatPengontrol(_jenis);
+  }
+
+  FormTransaksiController _buatPengontrol(JenisTransaksi jenis) {
+    return FormTransaksiController(
+      jenis: jenis,
       repositoriTransaksi: Get.find(),
       repositoriAkunDana: Get.find(),
       repositoriKategori: Get.find(),
-      draft: draft,
-    ));
+      layananPreferensi: Get.find<LayananPreferensi>(),
+      draft: _draft,
+    );
+  }
 
+  void _gantiJenis(JenisTransaksi jenis) {
+    if (jenis == _jenis) return;
+    setState(() {
+      _pengontrol?.onClose();
+      _jenis = jenis;
+      _pengontrol = _buatPengontrol(jenis);
+    });
+  }
+
+  @override
+  void dispose() {
+    _pengontrol?.onClose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Tinjau Transaksi')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            _kartuHasilOCR(context, draft),
+            _kartuHasilOCR(context, _draft),
             const SizedBox(height: 16),
-            BadanFormTransaksi(pengontrol: pengontrol),
+            SegmentedButton<JenisTransaksi>(
+              segments: const [
+                ButtonSegment(
+                  value: JenisTransaksi.pengeluaran,
+                  label: Text('Pengeluaran'),
+                  icon: Icon(Icons.remove_circle_outline_rounded),
+                ),
+                ButtonSegment(
+                  value: JenisTransaksi.pemasukan,
+                  label: Text('Pemasukan'),
+                  icon: Icon(Icons.add_circle_outline_rounded),
+                ),
+              ],
+              selected: {_jenis},
+              onSelectionChanged: (pilihan) => _gantiJenis(pilihan.first),
+            ),
+            const SizedBox(height: 16),
+            if (_pengontrol != null) BadanFormTransaksi(pengontrol: _pengontrol!),
           ],
         ),
       ),
@@ -41,22 +94,25 @@ class HalamanReviewOCR extends StatelessWidget {
 
   Widget _kartuHasilOCR(BuildContext context, DraftTransaksiOCR draft) {
     final tema = Theme.of(context);
-    final rincian = <(IconData, String, String)>[
-      (
+    final rincian = <(IconData, String, String)>[];
+    if (draft.nominal > 0) {
+      rincian.add((
         Icons.payments_rounded,
         'Nominal terbaca',
         formatRupiah(draft.nominal),
-      ),
-      (
-        Icons.event_rounded,
-        'Tanggal terbaca',
-        formatTanggal(draft.tanggal),
-      ),
-      if (draft.merchant != null)
-        (Icons.storefront_rounded, 'Merchant', draft.merchant!),
-      if (draft.metode != null)
-        (Icons.account_balance_wallet_rounded, 'Metode', draft.metode!),
-    ];
+      ));
+    }
+    rincian.add((
+      Icons.event_rounded,
+      'Tanggal terbaca',
+      formatTanggal(draft.tanggal),
+    ));
+    if (draft.merchant != null) {
+      rincian.add((Icons.storefront_rounded, 'Merchant', draft.merchant!));
+    }
+    if (draft.metode != null) {
+      rincian.add((Icons.account_balance_wallet_rounded, 'Metode', draft.metode!));
+    }
 
     return Card(
       child: Padding(
@@ -84,22 +140,29 @@ class HalamanReviewOCR extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            for (final (ikon, label, nilai) in rincian)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  children: [
-                    Icon(ikon, size: 16, color: tema.colorScheme.onSurfaceVariant),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        '$label: $nilai',
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+            if (rincian.isEmpty)
+              Text(
+                'Belum ada nilai yang terbaca. Lengkapi formulir di bawah.',
+                style: TextStyle(color: tema.colorScheme.onSurfaceVariant),
+              )
+            else
+              for (final (ikon, label, nilai) in rincian)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Row(
+                    children: [
+                      Icon(ikon,
+                          size: 16, color: tema.colorScheme.onSurfaceVariant),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '$label: $nilai',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
             const SizedBox(height: 4),
             ExpansionTile(
               tilePadding: EdgeInsets.zero,

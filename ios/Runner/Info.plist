@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Dompetku membutuhkan kamera untuk memotret struk atau bukti transaksi agar dapat dibaca otomatis.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Dompetku membutuhkan akses galeri untuk membaca teks dari foto struk atau bukti transaksi.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
