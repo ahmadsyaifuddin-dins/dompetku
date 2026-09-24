@@ -55,7 +55,7 @@ DateTime? parseTanggalOCR(String nilai) {
   if (iso != null) return iso;
 
   final bagian = nilai
-      .split(RegExp(r'[/\\\-\. ]+'))
+      .split(RegExp(r'[/\\\-\., ]+'))
       .where((b) => b.isNotEmpty)
       .toList();
   if (bagian.length < 3) return null;

@@ -48,7 +48,14 @@ class HalamanFormTransaksi extends StatelessWidget {
 class BadanFormTransaksi extends StatelessWidget {
   final FormTransaksiController pengontrol;
 
-  const BadanFormTransaksi({super.key, required this.pengontrol});
+  /// Aksi setelah simpan berhasil. Bila null, kembali ke halaman sebelumnya.
+  final VoidCallback? setelahSimpan;
+
+  const BadanFormTransaksi({
+    super.key,
+    required this.pengontrol,
+    this.setelahSimpan,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +163,11 @@ class BadanFormTransaksi extends StatelessWidget {
                   ? '$judul diperbarui.'
                   : '$judul sebesar '
                       '${pengontrol.nominalController.text} tersimpan.';
-              Get.back();
+              if (setelahSimpan != null) {
+                setelahSimpan!();
+              } else {
+                Get.back();
+              }
               tampilkanSnackbarDompetku(
                 jenis: JenisSnackbar.sukses,
                 judul: 'Berhasil',

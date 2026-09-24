@@ -5,6 +5,7 @@ import '../../core/services/layanan_preferensi.dart';
 import '../../core/utils/format_rupiah.dart';
 import '../../core/utils/format_tanggal.dart';
 import '../../data/model/enum_dompetku.dart';
+import '../../app/routes.dart';
 import 'draft_transaksi_ocr.dart';
 import 'form_transaksi_controller.dart';
 import 'halaman_form_transaksi.dart';
@@ -89,7 +90,14 @@ class _HalamanReviewOCRState extends State<HalamanReviewOCR> {
               onSelectionChanged: (pilihan) => _gantiJenis(pilihan.first),
             ),
             const SizedBox(height: 16),
-            if (_pengontrol != null) BadanFormTransaksi(pengontrol: _pengontrol!),
+            if (_pengontrol != null)
+              BadanFormTransaksi(
+                pengontrol: _pengontrol!,
+                // Setelah simpan dari layar tinjau OCR, jangan kembali ke
+                // "Baca dari Gambar; langsung ke daftar transaksi.
+                setelahSimpan: () =>
+                    Get.offAllNamed(Rute.transaksi),
+              ),
           ],
         ),
       ),
