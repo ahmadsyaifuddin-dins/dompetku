@@ -33,7 +33,7 @@ class _HalamanReviewOCRState extends State<HalamanReviewOCR> {
   }
 
   FormTransaksiController _buatPengontrol(JenisTransaksi jenis) {
-    return FormTransaksiController(
+    final pengontrol = FormTransaksiController(
       jenis: jenis,
       repositoriTransaksi: Get.find(),
       repositoriAkunDana: Get.find(),
@@ -41,6 +41,10 @@ class _HalamanReviewOCRState extends State<HalamanReviewOCR> {
       layananPreferensi: Get.find<LayananPreferensi>(),
       draft: _draft,
     );
+    // Controller ini tidak diregistrasi via Get.put, jadi siklus hidup
+    // (onInit -> langganan opsi akun/kategori) harus dijalankan manual.
+    pengontrol.onStart();
+    return pengontrol;
   }
 
   void _gantiJenis(JenisTransaksi jenis) {
