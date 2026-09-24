@@ -38,12 +38,16 @@ class BilahNavigasiDompetku extends StatelessWidget {
         children: [
           SafeArea(
             top: false,
-            child: SizedBox(
-              height: 60,
+            // [MODIFIKASI 1 & 2]: Mengganti SizedBox menjadi Container untuk menambah padding horizontal dan tinggi 65
+            child: Container(
+              height: 65,
+              padding: const EdgeInsets.symmetric(horizontal: 12.0), // Ruang lega di kiri & kanan
               child: Row(
                 children: [
                   for (var i = 0; i < _menu.length; i++) ...[
-                    if (i == 2) const SizedBox(width: 16),
+                    // [MODIFIKASI 3]: Ruang kosong (gap) untuk FAB di tengah. Cukup ditulis satu kali.
+                    if (i == 2) const SizedBox(width: 56),
+                    
                     Expanded(
                       child: _ItemNavigasi(
                         ikon: indeks == i ? _menu[i].$2 : _menu[i].$1,
@@ -52,14 +56,14 @@ class BilahNavigasiDompetku extends StatelessWidget {
                         onTap: () => padaPilih(i),
                       ),
                     ),
-                    if (i == 2) const SizedBox(width: 16),
                   ],
                 ],
               ),
             ),
           ),
           Positioned(
-            top: -26,
+            // [MODIFIKASI 4]: Menyesuaikan jarak top karena nav bar lebih tinggi
+            top: -24,
             left: 0,
             right: 0,
             child: Center(
@@ -70,6 +74,7 @@ class BilahNavigasiDompetku extends StatelessWidget {
                 backgroundColor: warna.primary,
                 foregroundColor: warna.onPrimary,
                 elevation: 4,
+                shape: const CircleBorder(), // Memastikan bentuknya bundar sempurna
                 child: const Icon(Icons.document_scanner_rounded),
               ),
             ),
