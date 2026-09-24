@@ -16,17 +16,13 @@ class HalamanTentang extends StatelessWidget {
           children: [
             const SizedBox(height: 16),
             Center(
-              child: Container(
-                width: 96,
-                height: 96,
-                decoration: BoxDecoration(
-                  color: warna.primaryContainer,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.account_balance_wallet_rounded,
-                  size: 48,
-                  color: warna.onPrimaryContainer,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset(
+                  'assets/logo_app.png',
+                  width: 96,
+                  height: 96,
+                  fit: BoxFit.contain,
                 ),
               ),
             ),
@@ -58,6 +54,14 @@ class HalamanTentang extends StatelessWidget {
                   style: tema.textTheme.bodyMedium?.copyWith(height: 1.5),
                   textAlign: TextAlign.center,
                 ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.history_rounded),
+                title: const Text('Mulai dibangun'),
+                subtitle: const Text('Sabtu, 5 September 2026 pukul 17.19'),
               ),
             ),
             const SizedBox(height: 24),

@@ -146,47 +146,52 @@ class HalamanAkunDana extends StatelessWidget {
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
+      // 1. TAMBAHKAN INI agar tinggi bottom sheet bisa beradaptasi
+      isScrollControlled: true, 
       builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: Text(
-                akun.nama,
-                style: const TextStyle(fontWeight: FontWeight.w700),
-              ),
-              subtitle: Text(formatRupiah(
-                pengontrol.saldoUntuk(akun.id) ?? akun.saldoAwal,
-              )),
-            ),
-            if (akun.aktif)
+        // 2. BUNGKUS DENGAN SingleChildScrollView agar tidak overflow di layar kecil
+        child: SingleChildScrollView( 
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               ListTile(
-                leading: const Icon(Icons.edit_rounded),
-                title: const Text('Edit Nama'),
-                onTap: () {
-                  Navigator.pop(sheetContext);
-                  _bukaEditNama(context, pengontrol, akun);
-                },
-              ),
-            if (akun.aktif)
-              ListTile(
-                leading: Icon(
-                  Icons.block_rounded,
-                  color: Theme.of(context).colorScheme.error,
-                ),
                 title: Text(
-                  'Nonaktifkan Akun',
-                  style: TextStyle(
+                  akun.nama,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                subtitle: Text(formatRupiah(
+                  pengontrol.saldoUntuk(akun.id) ?? akun.saldoAwal,
+                )),
+              ),
+              if (akun.aktif)
+                ListTile(
+                  leading: const Icon(Icons.edit_rounded),
+                  title: const Text('Edit Nama'),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _bukaEditNama(context, pengontrol, akun);
+                  },
+                ),
+              if (akun.aktif)
+                ListTile(
+                  leading: Icon(
+                    Icons.block_rounded,
                     color: Theme.of(context).colorScheme.error,
                   ),
+                  title: Text(
+                    'Nonaktifkan Akun',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _konfirmasiNonaktifkan(context, pengontrol, akun);
+                  },
                 ),
-                onTap: () {
-                  Navigator.pop(sheetContext);
-                  _konfirmasiNonaktifkan(context, pengontrol, akun);
-                },
-              ),
-            const SizedBox(height: 8),
-          ],
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );

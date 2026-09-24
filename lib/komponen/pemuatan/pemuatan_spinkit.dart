@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-import '../../core/theme/warna_tema.dart';
-
-enum TipePemuatan { piring, titik }
+enum TipePemuatan { piring, titik, gelombang }
 
 class PemuatanSpinkit extends StatelessWidget {
   final TipePemuatan tipe;
@@ -27,6 +25,10 @@ class PemuatanSpinkit extends StatelessWidget {
         ),
       TipePemuatan.titik => SpinKitThreeBounce(
           size: ukuran / 3,
+          color: warnaAkhir,
+        ),
+      TipePemuatan.gelombang => SpinKitWaveSpinner(
+          size: ukuran,
           color: warnaAkhir,
         ),
     };
@@ -71,10 +73,20 @@ class PemuatanStartup extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.account_balance_wallet_rounded,
-                size: 64, color: warnaEmerald),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.asset(
+                'assets/logo_app.png',
+                width: 96,
+                height: 96,
+                fit: BoxFit.contain,
+              ),
+            ),
             const SizedBox(height: 24),
-            const PemuatanSpinkit(ukuran: 40),
+            const PemuatanSpinkit(
+              tipe: TipePemuatan.gelombang,
+              ukuran: 40,
+            ),
             const SizedBox(height: 24),
             Text(judul, style: Theme.of(context).textTheme.titleMedium),
           ],
