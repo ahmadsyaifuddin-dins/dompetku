@@ -13,19 +13,31 @@ import '../../app/routes.dart';
 import 'detail_piutang_controller.dart';
 import 'lembar_aksi_piutang.dart';
 
-class HalamanDetailPiutang extends StatelessWidget {
+class HalamanDetailPiutang extends StatefulWidget {
   const HalamanDetailPiutang({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<HalamanDetailPiutang> createState() => _HalamanDetailPiutangState();
+}
+
+class _HalamanDetailPiutangState extends State<HalamanDetailPiutang> {
+  late final DetailPiutangController pengontrol;
+
+  @override
+  void initState() {
+    super.initState();
+    // Pindahkan inisialisasi ke initState agar hanya dieksekusi satu kali
     final piutang = Get.arguments as PiutangData;
-    final pengontrol = Get.put(
+    pengontrol = Get.put(
       DetailPiutangController(
         repositoriPiutang: Get.find<RepositoriPiutang>(),
         piutang: piutang,
       ),
     );
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detail Piutang'),
@@ -38,14 +50,22 @@ class HalamanDetailPiutang extends StatelessWidget {
                 Rute.tambahPiutang,
                 arguments: pengontrol.piutang.value,
               );
-              await pengontrol.muatUlang();
+              // Pengecekan mounted mencegah eksekusi fungsi jika widget sudah dihancurkan
+              if (mounted) {
+                await pengontrol.muatUlang();
+              }
             },
           ),
         ],
       ),
       body: SafeArea(
         child: Obx(() {
-          final piutang = pengontrol.piutang.value!;
+          final piutang = pengontrol.piutang.value;
+          // Penanganan null-safety tambahan saat re-render
+          if (piutang == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
           final sisa = pengontrol.sisa;
           final lunas = sisa <= 0;
           return Column(
@@ -145,11 +165,15 @@ class HalamanDetailPiutang extends StatelessWidget {
       praisiNominal: praisiNominal,
     );
     if (pesan == null) return;
-    tampilkanSnackbarDompetku(
-      jenis: JenisSnackbar.sukses,
-      judul: 'Berhasil',
-      pesan: pesan,
-    );
+    
+    // Pastikan layar masih aktif sebelum memunculkan snackbar
+    if (mounted) {
+      tampilkanSnackbarDompetku(
+        jenis: JenisSnackbar.sukses,
+        judul: 'Berhasil',
+        pesan: pesan,
+      );
+    }
   }
 
   Widget _kepalaPiutang(
@@ -191,8 +215,7 @@ class HalamanDetailPiutang extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                if (piutang.catatan != null &&
-                    piutang.catatan!.isNotEmpty)
+                if (piutang.catatan != null && piutang.catatan!.isNotEmpty)
                   Text(
                     piutang.catatan!,
                     maxLines: 1,

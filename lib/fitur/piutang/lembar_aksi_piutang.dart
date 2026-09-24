@@ -22,176 +22,218 @@ Future<String?> bukaLembarAksiPiutang(
   required PiutangData piutang,
   int praisiNominal = 0,
 }) {
-  final nominalController = TextEditingController(
-    text: praisiNominal > 0 ? praisiNominal.toString() : '',
-  );
-  final catatanController = TextEditingController();
-  final akunId = RxnString();
-  final tanggal = DateTime.now().obs;
-  final mengirim = false.obs;
-  final opsiAkun = <AkunDanaData>[].obs;
-  var sudahDispose = false;
-
-  StreamSubscription<List<AkunDanaData>>? langgananAkun;
-
-  final aksi = jenis == JenisRiwayat.pinjaman ? 'Pinjaman' : 'Pembayaran';
-
-  void dispose() {
-    if (sudahDispose) return;
-    sudahDispose = true;
-    langgananAkun?.cancel();
-    nominalController.dispose();
-    catatanController.dispose();
-  }
-
   return showModalBottomSheet<String?>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
-    builder: (sheetContext) {
-      langgananAkun = Get.find<RepositoriAkunDana>()
-          .pantauSemuaAktif()
-          .listen((data) {
-        opsiAkun.value = data;
-        if (akunId.value == null && data.isNotEmpty) {
-          akunId.value = data.first.id;
-        }
-      });
+    builder: (sheetContext) => _LembarAksiPiutang(
+      pengontrol: pengontrol,
+      jenis: jenis,
+      piutang: piutang,
+      praisiNominal: praisiNominal,
+    ),
+  );
+}
 
-      return GetBuilder<DetailPiutangController>(
-        init: pengontrol,
-        builder: (_) {
-          return Padding(
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              top: 0,
-              bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 16,
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Text(
-                      'Catat $aksi',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Center(
-                    child: Text(
-                      piutang.nama,
-                      style: TextStyle(
-                        color: Theme.of(sheetContext)
-                            .colorScheme
-                            .onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  MasukanNominal(controller: nominalController),
-                  const SizedBox(height: 16),
-                  Obx(
-                    () => DropdownButtonFormField<String>(
-                      key: ValueKey(akunId.value),
-                      initialValue: akunId.value,
-                      decoration: const InputDecoration(
-                        labelText: 'Akun Dana',
-                        prefixIcon:
-                            Icon(Icons.account_balance_wallet_rounded),
-                      ),
-                      items: opsiAkun
-                          .map(
-                            (akun) => DropdownMenuItem(
-                              value: akun.id,
-                              child: Text(akun.nama),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: opsiAkun.isEmpty
-                          ? null
-                          : (nilai) => akunId.value = nilai,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Obx(
-                    () => PilihTanggal(
-                      tanggal: tanggal.value,
-                      onBerubah: (nilai) => tanggal.value = nilai,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: catatanController,
-                    maxLines: 2,
-                    decoration: const InputDecoration(
-                      labelText: 'Catatan',
-                      hintText: 'Tulis catatan (opsional)',
-                      alignLabelWithHint: true,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Obx(() {
-                    final pesan = pengontrol.galat.value;
-                    if (pesan == null) return const SizedBox.shrink();
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                        pesan,
-                        style: TextStyle(
-                          color: Theme.of(sheetContext).colorScheme.error,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    );
-                  }),
-                  Obx(
-                    () => TombolUtama(
-                      label: 'Simpan $aksi',
-                      ikon: Icons.check_rounded,
-                      pemuatan: mengirim.value,
-                      onDitekan: () async {
-                        final nominal =
-                            parseNominalInput(nominalController.text);
-                        final galatNominal = validasiNominal(nominal);
-                        if (galatNominal != null || nominal == null) {
-                          pengontrol.galat.value = galatNominal ??
-                              'Nominal harus lebih besar dari 0.';
-                          return;
-                        }
-                        if (akunId.value == null) {
-                          pengontrol.galat.value = 'Pilih akun dana.';
-                          return;
-                        }
-                        mengirim.value = true;
-                        final berhasil = await pengontrol.catat(
-                          jenis: jenis,
-                          akunDanaId: akunId.value!,
-                          nominal: nominal,
-                          tanggal: tanggal.value,
-                          catatan: catatanController.text.trim(),
-                        );
-                        mengirim.value = false;
-                        if (!berhasil) return;
-                        final pesanBerhasil =
-                            '$aksi ${formatRupiah(nominal)} dicatat.';
-                        if (sheetContext.mounted) {
-                          Navigator.pop(sheetContext, pesanBerhasil);
-                        }
-                      },
-                    ),
-                  ),
-                ],
+class _LembarAksiPiutang extends StatefulWidget {
+  final DetailPiutangController pengontrol;
+  final JenisRiwayat jenis;
+  final PiutangData piutang;
+  final int praisiNominal;
+
+  const _LembarAksiPiutang({
+    required this.pengontrol,
+    required this.jenis,
+    required this.piutang,
+    required this.praisiNominal,
+  });
+
+  @override
+  State<_LembarAksiPiutang> createState() => _LembarAksiPiutangState();
+}
+
+class _LembarAksiPiutangState extends State<_LembarAksiPiutang> {
+  late final TextEditingController nominalController;
+  final catatanController = TextEditingController();
+  StreamSubscription<List<AkunDanaData>>? langgananAkun;
+
+  String? akunId;
+  DateTime tanggal = DateTime.now();
+  bool mengirim = false;
+  List<AkunDanaData> opsiAkun = [];
+  String? pesanGalat;
+
+  String get aksi => widget.jenis == JenisRiwayat.pinjaman ? 'Pinjaman' : 'Pembayaran';
+
+  @override
+  void initState() {
+    super.initState();
+    nominalController = TextEditingController(
+      text: widget.praisiNominal > 0 ? widget.praisiNominal.toString() : '',
+    );
+
+    // Memantau data langsung ke local state, lebih aman saat widget di-unmount
+    langgananAkun = Get.find<RepositoriAkunDana>()
+        .pantauSemuaAktif()
+        .listen((data) {
+      if (mounted) {
+        setState(() {
+          opsiAkun = data;
+          if (akunId == null && data.isNotEmpty) {
+            akunId = data.first.id;
+          }
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    langgananAkun?.cancel();
+    nominalController.dispose();
+    catatanController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = Theme.of(context);
+    final warnaError = tema.colorScheme.error;
+    final warnaTeksSub = tema.colorScheme.onSurfaceVariant;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 0,
+        // MediaQuery aman digunakan di dalam StatefulWidget biasa
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Text(
+                'Catat $aksi',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
-          );
-        },
-      );
-    },
-  ).whenComplete(dispose);
+            const SizedBox(height: 4),
+            Center(
+              child: Text(
+                widget.piutang.nama,
+                style: TextStyle(color: warnaTeksSub),
+              ),
+            ),
+            const SizedBox(height: 16),
+            MasukanNominal(controller: nominalController),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              key: ValueKey(akunId),
+              value: akunId,
+              decoration: const InputDecoration(
+                labelText: 'Akun Dana',
+                prefixIcon: Icon(Icons.account_balance_wallet_rounded),
+              ),
+              items: opsiAkun
+                  .map(
+                    (akun) => DropdownMenuItem(
+                      value: akun.id,
+                      child: Text(akun.nama),
+                    ),
+                  )
+                  .toList(),
+              onChanged: opsiAkun.isEmpty
+                  ? null
+                  : (nilai) {
+                      setState(() {
+                        akunId = nilai;
+                      });
+                    },
+            ),
+            const SizedBox(height: 16),
+            PilihTanggal(
+              tanggal: tanggal,
+              onBerubah: (nilai) {
+                setState(() {
+                  tanggal = nilai;
+                });
+              },
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: catatanController,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                labelText: 'Catatan',
+                hintText: 'Tulis catatan (opsional)',
+                alignLabelWithHint: true,
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (pesanGalat != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  pesanGalat!,
+                  style: TextStyle(
+                    color: warnaError,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            TombolUtama(
+              label: 'Simpan $aksi',
+              ikon: Icons.check_rounded,
+              pemuatan: mengirim,
+              onDitekan: () async {
+                final nominal = parseNominalInput(nominalController.text);
+                final galatNominal = validasiNominal(nominal);
+                
+                if (galatNominal != null || nominal == null) {
+                  setState(() => pesanGalat = galatNominal ?? 'Nominal harus lebih besar dari 0.');
+                  return;
+                }
+                if (akunId == null) {
+                  setState(() => pesanGalat = 'Pilih akun dana.');
+                  return;
+                }
+
+                setState(() {
+                  pesanGalat = null;
+                  mengirim = true;
+                });
+
+                final berhasil = await widget.pengontrol.catat(
+                  jenis: widget.jenis,
+                  akunDanaId: akunId!,
+                  nominal: nominal,
+                  tanggal: tanggal,
+                  catatan: catatanController.text.trim(),
+                );
+
+                if (berhasil) {
+                  if (mounted) {
+                    Navigator.pop(context, '$aksi ${formatRupiah(nominal)} dicatat.');
+                  }
+                } else {
+                  if (mounted) {
+                    setState(() {
+                      mengirim = false;
+                      pesanGalat = widget.pengontrol.galat.value ?? 'Terjadi kesalahan sistem.';
+                    });
+                  }
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
