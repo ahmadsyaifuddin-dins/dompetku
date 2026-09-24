@@ -36,8 +36,11 @@ class LingkunganUji {
   LingkunganUji({required this.aplikasi, required this.database});
 }
 
-Future<LingkunganUji> buatLingkunganUji() async {
+Future<LingkunganUji> buatLingkunganUji({bool sudahInstal = true}) async {
   await aturLingkunganUji();
+  if (!sudahInstal) {
+    SharedPreferences.setMockInitialValues({});
+  }
   final database = DompetKuDatabase(NativeDatabase.memory());
   final preferensi = await SharedPreferences.getInstance();
 
@@ -125,6 +128,33 @@ void main() {
       expect(tersisa, isEmpty);
 
       await database.close();
+    });
+  });
+
+  group('Onboarding satu kali', () {
+    testWidgets('belum terpasang: halaman onboarding tampil',
+        (tester) async {
+      final lingkungan = await buatLingkunganUji(sudahInstal: false);
+      await tester.pumpWidget(lingkungan.aplikasi);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Selamat Datang di DompetKu'), findsOneWidget);
+
+      await lingkungan.database.close();
+      await tester.pump();
+    });
+
+    testWidgets('sudah terpasang: onboarding tidak tampil lagi',
+        (tester) async {
+      final lingkungan = await buatLingkunganUji(sudahInstal: true);
+      await tester.pumpWidget(lingkungan.aplikasi);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Selamat Datang di DompetKu'), findsNothing);
+      expect(find.text('Total Saldo'), findsOneWidget);
+
+      await lingkungan.database.close();
+      await tester.pump();
     });
   });
 

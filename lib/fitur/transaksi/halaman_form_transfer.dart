@@ -113,15 +113,16 @@ class HalamanFormTransfer extends StatelessWidget {
                 onDitekan: () async {
                   final berhasil = await pengontrol.simpan();
                   if (!berhasil) return;
+                  final pesanBerhasil = sedangMengedit == null
+                      ? 'Transfer sebesar '
+                          '${pengontrol.nominalController.text} tersimpan.'
+                      : 'Transfer diperbarui.';
+                  Get.back();
                   tampilkanSnackbarDompetku(
                     jenis: JenisSnackbar.sukses,
                     judul: 'Berhasil',
-                    pesan: sedangMengedit == null
-                        ? 'Transfer sebesar '
-                            '${pengontrol.nominalController.text} tersimpan.'
-                        : 'Transfer diperbarui.',
+                    pesan: pesanBerhasil,
                   );
-                  Get.back();
                 },
               ),
             ),

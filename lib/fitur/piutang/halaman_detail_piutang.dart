@@ -8,6 +8,7 @@ import '../../core/services/layanan_saldo.dart';
 import '../../core/utils/format_rupiah.dart';
 import '../../core/utils/format_tanggal.dart';
 import '../../komponen/keadaan/keadaan_kosong.dart';
+import '../../komponen/snackbar/snackbar_dompetku.dart';
 import '../../app/routes.dart';
 import 'detail_piutang_controller.dart';
 import 'lembar_aksi_piutang.dart';
@@ -56,7 +57,7 @@ class HalamanDetailPiutang extends StatelessWidget {
                   children: [
                     Expanded(
                       child: OutlinedButton.icon(
-                        onPressed: () => bukaLembarAksiPiutang(
+                        onPressed: () => _bukaAksi(
                           context,
                           pengontrol,
                           jenis: JenisRiwayat.pinjaman,
@@ -71,7 +72,7 @@ class HalamanDetailPiutang extends StatelessWidget {
                       child: FilledButton.icon(
                         onPressed: lunas
                             ? null
-                            : () => bukaLembarAksiPiutang(
+                            : () => _bukaAksi(
                                   context,
                                   pengontrol,
                                   jenis: JenisRiwayat.pembayaran,
@@ -90,7 +91,7 @@ class HalamanDetailPiutang extends StatelessWidget {
                   child: SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
-                      onPressed: () => bukaLembarAksiPiutang(
+                      onPressed: () => _bukaAksi(
                         context,
                         pengontrol,
                         jenis: JenisRiwayat.pembayaran,
@@ -126,6 +127,28 @@ class HalamanDetailPiutang extends StatelessWidget {
           );
         }),
       ),
+    );
+  }
+
+  Future<void> _bukaAksi(
+    BuildContext context,
+    DetailPiutangController pengontrol, {
+    required JenisRiwayat jenis,
+    required PiutangData piutang,
+    int praisiNominal = 0,
+  }) async {
+    final pesan = await bukaLembarAksiPiutang(
+      context,
+      pengontrol,
+      jenis: jenis,
+      piutang: piutang,
+      praisiNominal: praisiNominal,
+    );
+    if (pesan == null) return;
+    tampilkanSnackbarDompetku(
+      jenis: JenisSnackbar.sukses,
+      judul: 'Berhasil',
+      pesan: pesan,
     );
   }
 

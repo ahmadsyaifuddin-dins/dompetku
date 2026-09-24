@@ -2,6 +2,8 @@ import 'package:dompetku/data/database/database.dart';
 import 'package:dompetku/data/model/enum_dompetku.dart';
 import 'package:dompetku/fitur/piutang/hitung_sisa_piutang.dart';
 import 'package:dompetku/core/utils/hitung_saldo.dart';
+import 'package:dompetku/core/utils/format_rupiah.dart';
+import 'package:dompetku/core/validation/validasi_transaksi.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 RiwayatPiutangData _riwayat({
@@ -114,6 +116,21 @@ void main() {
       );
 
       expect(saldo, 100000);
+    });
+  });
+
+  group('regresi nominal format ribuan di lembar aksi piutang', () {
+    test('"5.000" (format id_ID) dibaca 5000 dan lolos validasi', () {
+      final teks = '5.000';
+      expect(int.tryParse(teks), isNull);
+
+      final nominal = parseNominalInput(teks);
+      expect(nominal, 5000);
+      expect(validasiNominal(nominal), isNull);
+    });
+
+    test('"5000" polos tetap terbaca', () {
+      expect(parseNominalInput('5000'), 5000);
     });
   });
 }

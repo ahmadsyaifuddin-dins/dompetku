@@ -74,14 +74,15 @@ class HalamanTambahPiutang extends StatelessWidget {
                 onDitekan: () async {
                   final berhasil = await pengontrol.simpan();
                   if (!berhasil) return;
+                  final pesanBerhasil = sedangEdit
+                      ? 'Piutang diperbarui.'
+                      : 'Piutang baru ditambahkan.';
+                  Get.back();
                   tampilkanSnackbarDompetku(
                     jenis: JenisSnackbar.sukses,
                     judul: 'Berhasil',
-                    pesan: sedangEdit
-                        ? 'Piutang diperbarui.'
-                        : 'Piutang baru ditambahkan.',
+                    pesan: pesanBerhasil,
                   );
-                  Get.back();
                 },
               ),
             ),

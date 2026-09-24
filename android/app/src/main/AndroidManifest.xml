@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Dibutuhkan aplikasi untuk mengirim notifikasi WhatsApp via API Fonnte
+         dan fitur daring lain; tidak hanya untuk mode debug. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="dompetku"
+        android:label="DompetKu"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

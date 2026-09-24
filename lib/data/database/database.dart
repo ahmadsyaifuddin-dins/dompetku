@@ -6,7 +6,7 @@ import 'eksekutor_database.dart';
 
 part 'database.g.dart';
 
-const int _versiDatabase = 1;
+const int _versiDatabase = 2;
 
 const String _defaultAkunNama = 'SeaBank';
 
@@ -43,6 +43,8 @@ class Kategori extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+@TableIndex(name: 'idx_transaksi_akun_dana_id', columns: {#akunDanaId})
+@TableIndex(name: 'idx_transaksi_kategori_id', columns: {#kategoriId})
 class Transaksi extends Table {
   @override
   String get tableName => 'transaksi';
@@ -60,14 +62,10 @@ class Transaksi extends Table {
 
   @override
   Set<Column> get primaryKey => {id};
-
-  @override
-  List<Set<Column>> get uniqueKeys => [
-        {akunDanaId},
-        {kategoriId},
-      ];
 }
 
+@TableIndex(name: 'idx_transfer_akun_asal_id', columns: {#akunAsalId})
+@TableIndex(name: 'idx_transfer_akun_tujuan_id', columns: {#akunTujuanId})
 class Transfer extends Table {
   @override
   String get tableName => 'transfer';
@@ -83,12 +81,6 @@ class Transfer extends Table {
 
   @override
   Set<Column> get primaryKey => {id};
-
-  @override
-  List<Set<Column>> get uniqueKeys => [
-        {akunAsalId},
-        {akunTujuanId},
-      ];
 }
 
 class Piutang extends Table {
@@ -105,6 +97,8 @@ class Piutang extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+@TableIndex(name: 'idx_riwayat_piutang_piutang_id', columns: {#piutangId})
+@TableIndex(name: 'idx_riwayat_piutang_akun_dana_id', columns: {#akunDanaId})
 class RiwayatPiutang extends Table {
   @override
   String get tableName => 'riwayat_piutang';
@@ -121,12 +115,6 @@ class RiwayatPiutang extends Table {
 
   @override
   Set<Column> get primaryKey => {id};
-
-  @override
-  List<Set<Column>> get uniqueKeys => [
-        {piutangId},
-        {akunDanaId},
-      ];
 }
 
 @DriftDatabase(
@@ -153,13 +141,21 @@ class DompetKuDatabase extends _$DompetKuDatabase {
           await _buatDataAwal();
         },
         onUpgrade: (m, dari, ke) async {
-          // Migrasi ber-version akan ditambahkan di sini di versi berikutnya.
+          if (dari < 2) {
+            await _perbaikiUnikKolom(m);
+          }
         },
         beforeOpen: (detail) async {
           await customStatement('PRAGMA foreign_keys = ON');
           await _isiKategoriDefaultJikaKosong();
         },
       );
+
+  Future<void> _perbaikiUnikKolom(Migrator m) async {
+    await m.alterTable(TableMigration(transaksi));
+    await m.alterTable(TableMigration(transfer));
+    await m.alterTable(TableMigration(riwayatPiutang));
+  }
 
   Future<void> _buatDataAwal() async {
     await into(akunDana).insert(

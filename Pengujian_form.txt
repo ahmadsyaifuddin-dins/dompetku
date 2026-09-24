@@ -1,3 +1,14 @@
 1. gagal mulu ketika input pengeluaran transaksi
 
 2. gagal melakukan input peminjaman pada orang (katanya nominal harus lebih besar dari nol padahal ada aku isi input duit seabank itu 100 ribu aku coba test 5000 ribu pinjam pada satu orang peminjam)
+
+3. Ketika input data baik di transaksi masuk dan keluar dan input data peminjam itu yg pinjaman itu nah setiap klik tombol simpan itu gak ke redirect otomatis mulu jir
+
+
+terus ada erorr package:flutter/src/widgets/
+
+framework.dart': Failed
+
+assertion: line 6281 pos 12: _dependents.isEmpty': is not true.
+
+See also: https:// docs.flutter.dev/testing/errors

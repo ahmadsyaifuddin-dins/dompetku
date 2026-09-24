@@ -152,15 +152,16 @@ class BadanFormTransaksi extends StatelessWidget {
             onDitekan: () async {
               final berhasil = await pengontrol.simpan();
               if (!berhasil) return;
+              final pesanBerhasil = sedangEdit
+                  ? '$judul diperbarui.'
+                  : '$judul sebesar '
+                      '${pengontrol.nominalController.text} tersimpan.';
+              Get.back();
               tampilkanSnackbarDompetku(
                 jenis: JenisSnackbar.sukses,
                 judul: 'Berhasil',
-                pesan: sedangEdit
-                    ? '$judul diperbarui.'
-                    : '$judul sebesar '
-                        '${pengontrol.nominalController.text} tersimpan.',
+                pesan: pesanBerhasil,
               );
-              Get.back();
             },
           ),
         ),

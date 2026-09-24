@@ -10,18 +10,18 @@ import '../../core/utils/format_rupiah.dart';
 import '../../core/validation/validasi_transaksi.dart';
 import '../../komponen/masukan/masukan_nominal.dart';
 import '../../komponen/masukan/pilih_tanggal.dart';
-import '../../komponen/snackbar/snackbar_dompetku.dart';
 import '../../komponen/tombol/tombol_utama.dart';
 import 'detail_piutang_controller.dart';
 
 /// Lembar untuk mencatat pinjaman tambahan atau pembayaran piutang.
-Future<void> bukaLembarAksiPiutang(
+/// Mengembalikan pesan sukses bila aksi berhasil, atau null bila dibatalkan.
+Future<String?> bukaLembarAksiPiutang(
   BuildContext context,
   DetailPiutangController pengontrol, {
   required JenisRiwayat jenis,
   required PiutangData piutang,
   int praisiNominal = 0,
-}) async {
+}) {
   final nominalController = TextEditingController(
     text: praisiNominal > 0 ? praisiNominal.toString() : '',
   );
@@ -44,7 +44,7 @@ Future<void> bukaLembarAksiPiutang(
     catatanController.dispose();
   }
 
-  showModalBottomSheet<void>(
+  return showModalBottomSheet<String?>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
@@ -156,10 +156,12 @@ Future<void> bukaLembarAksiPiutang(
                       ikon: Icons.check_rounded,
                       pemuatan: mengirim.value,
                       onDitekan: () async {
-                        final nominal = int.tryParse(nominalController.text);
+                        final nominal =
+                            parseNominalInput(nominalController.text);
                         final galatNominal = validasiNominal(nominal);
-                        if (galatNominal != null) {
-                          pengontrol.galat.value = galatNominal;
+                        if (galatNominal != null || nominal == null) {
+                          pengontrol.galat.value = galatNominal ??
+                              'Nominal harus lebih besar dari 0.';
                           return;
                         }
                         if (akunId.value == null) {
@@ -170,19 +172,16 @@ Future<void> bukaLembarAksiPiutang(
                         final berhasil = await pengontrol.catat(
                           jenis: jenis,
                           akunDanaId: akunId.value!,
-                          nominal: nominal!,
+                          nominal: nominal,
                           tanggal: tanggal.value,
                           catatan: catatanController.text.trim(),
                         );
                         mengirim.value = false;
                         if (!berhasil) return;
-                        tampilkanSnackbarDompetku(
-                          jenis: JenisSnackbar.sukses,
-                          judul: 'Berhasil',
-                          pesan: '$aksi ${formatRupiah(nominal)} dicatat.',
-                        );
+                        final pesanBerhasil =
+                            '$aksi ${formatRupiah(nominal)} dicatat.';
                         if (sheetContext.mounted) {
-                          Navigator.pop(sheetContext);
+                          Navigator.pop(sheetContext, pesanBerhasil);
                         }
                       },
                     ),

@@ -1070,11 +1070,6 @@ class $TransaksiTable extends Transaksi
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  List<Set<GeneratedColumn>> get uniqueKeys => [
-    {akunDanaId},
-    {kategoriId},
-  ];
-  @override
   TransaksiData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return TransaksiData(
@@ -1651,11 +1646,6 @@ class $TransferTable extends Transfer
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  List<Set<GeneratedColumn>> get uniqueKeys => [
-    {akunAsalId},
-    {akunTujuanId},
-  ];
   @override
   TransferData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -2538,11 +2528,6 @@ class $RiwayatPiutangTable extends RiwayatPiutang
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  List<Set<GeneratedColumn>> get uniqueKeys => [
-    {piutangId},
-    {akunDanaId},
-  ];
-  @override
   RiwayatPiutangData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return RiwayatPiutangData(
@@ -2908,6 +2893,30 @@ abstract class _$DompetKuDatabase extends GeneratedDatabase {
   late final $TransferTable transfer = $TransferTable(this);
   late final $PiutangTable piutang = $PiutangTable(this);
   late final $RiwayatPiutangTable riwayatPiutang = $RiwayatPiutangTable(this);
+  late final Index idxTransaksiAkunDanaId = Index(
+    'idx_transaksi_akun_dana_id',
+    'CREATE INDEX idx_transaksi_akun_dana_id ON transaksi (akun_dana_id)',
+  );
+  late final Index idxTransaksiKategoriId = Index(
+    'idx_transaksi_kategori_id',
+    'CREATE INDEX idx_transaksi_kategori_id ON transaksi (kategori_id)',
+  );
+  late final Index idxTransferAkunAsalId = Index(
+    'idx_transfer_akun_asal_id',
+    'CREATE INDEX idx_transfer_akun_asal_id ON transfer (akun_asal_id)',
+  );
+  late final Index idxTransferAkunTujuanId = Index(
+    'idx_transfer_akun_tujuan_id',
+    'CREATE INDEX idx_transfer_akun_tujuan_id ON transfer (akun_tujuan_id)',
+  );
+  late final Index idxRiwayatPiutangPiutangId = Index(
+    'idx_riwayat_piutang_piutang_id',
+    'CREATE INDEX idx_riwayat_piutang_piutang_id ON riwayat_piutang (piutang_id)',
+  );
+  late final Index idxRiwayatPiutangAkunDanaId = Index(
+    'idx_riwayat_piutang_akun_dana_id',
+    'CREATE INDEX idx_riwayat_piutang_akun_dana_id ON riwayat_piutang (akun_dana_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2919,6 +2928,12 @@ abstract class _$DompetKuDatabase extends GeneratedDatabase {
     transfer,
     piutang,
     riwayatPiutang,
+    idxTransaksiAkunDanaId,
+    idxTransaksiKategoriId,
+    idxTransferAkunAsalId,
+    idxTransferAkunTujuanId,
+    idxRiwayatPiutangPiutangId,
+    idxRiwayatPiutangAkunDanaId,
   ];
 }
 
