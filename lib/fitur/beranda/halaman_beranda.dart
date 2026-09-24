@@ -38,9 +38,9 @@ class HalamanBeranda extends StatelessWidget {
             if (layananSaldo.akun.isEmpty) {
               return KeadaanKosong(
                 ikon: Icons.account_balance_wallet_rounded,
-                judul: 'Belum ada akun dana',
+                judul: 'Belum ada akun Sumber dana',
                 pesan:
-                    'Tambahkan akun dana untuk mulai mencatat transaksimu.',
+                    'Tambahkan akun Sumber dana untuk mulai mencatat transaksimu.',
               );
             }
             final histori = layananSaldo.histori;

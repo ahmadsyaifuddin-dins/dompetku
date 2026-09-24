@@ -9,11 +9,13 @@ import '../../core/constants/ikon_map.dart';
 import '../../core/services/layanan_saldo.dart';
 import '../../core/utils/format_rupiah.dart';
 import '../../komponen/keadaan/keadaan_kosong.dart';
-import '../../komponen/masukan/masukan_nominal.dart';
 import '../../komponen/pemuatan/pemuatan_shimmer.dart';
 import '../../komponen/snackbar/snackbar_dompetku.dart';
-import '../../komponen/tombol/tombol_utama.dart';
 import 'akun_dana_controller.dart';
+
+// Import komponen modular (pastikan letak foldernya benar)
+import 'partial/form_edit_nama.dart';
+import 'partial/form_tambah_akun.dart';
 
 class HalamanAkunDana extends StatelessWidget {
   const HalamanAkunDana({super.key});
@@ -28,7 +30,7 @@ class HalamanAkunDana extends StatelessWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Akun Dana')),
+      appBar: AppBar(title: const Text('Akun Sumber Dana')),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _bukaFormTambah(context, pengontrol),
         icon: const Icon(Icons.add_rounded),
@@ -50,7 +52,7 @@ class HalamanAkunDana extends StatelessWidget {
         if (aktif.isEmpty && nonaktif.isEmpty) {
           return KeadaanKosong(
             ikon: Icons.account_balance_wallet_rounded,
-            judul: 'Belum ada akun dana',
+            judul: 'Belum ada akun Sumber dana',
             pesan: 'Ketuk tombol Tambah untuk membuat akun pertamamu.',
           );
         }
@@ -229,7 +231,7 @@ class HalamanAkunDana extends StatelessWidget {
   ) {
     Get.bottomSheet(
       isScrollControlled: true,
-      _FormTambahAkun(pengontrol: pengontrol),
+      FormTambahAkun(pengontrol: pengontrol),
     );
   }
 
@@ -240,179 +242,7 @@ class HalamanAkunDana extends StatelessWidget {
   ) {
     Get.bottomSheet(
       isScrollControlled: true,
-      _FormEditNama(pengontrol: pengontrol, akun: akun),
-    );
-  }
-}
-
-class _FormEditNama extends StatelessWidget {
-  final AkunDanaController pengontrol;
-  final AkunDanaData akun;
-
-  const _FormEditNama({required this.pengontrol, required this.akun});
-
-  @override
-  Widget build(BuildContext context) {
-    final namaController = TextEditingController(text: akun.nama);
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text(
-            'Edit Nama Akun',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: namaController,
-            autofocus: true,
-            textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              labelText: 'Nama Akun',
-              hintText: 'Contoh: SeaBank',
-              prefixIcon: Icon(Icons.edit_rounded),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Obx(
-            () => TombolUtama(
-              label: 'Simpan Nama',
-              ikon: Icons.check_rounded,
-              pemuatan: pengontrol.menyimpan.value,
-              onDitekan: () async {
-                final berhasil = await pengontrol.perbaruiNama(
-                  akun,
-                  namaController.text,
-                );
-                if (!berhasil) return;
-                Get.back();
-                tampilkanSnackbarDompetku(
-                  jenis: JenisSnackbar.sukses,
-                  judul: 'Berhasil',
-                  pesan: 'Nama akun diubah menjadi '
-                      '${namaController.text.trim()}.',
-                );
-              },
-            ),
-          ),
-          Obx(() {
-            final pesan = pengontrol.galat.value;
-            if (pesan == null) return const SizedBox.shrink();
-            return Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                pesan,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-}
-
-class _FormTambahAkun extends StatelessWidget {
-  final AkunDanaController pengontrol;
-
-  const _FormTambahAkun({required this.pengontrol});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text(
-            'Tambah Akun Dana',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: pengontrol.namaController,
-            autofocus: true,
-            textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              labelText: 'Nama Akun',
-              hintText: 'Contoh: SeaBank',
-              prefixIcon: Icon(Icons.edit_rounded),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Obx(
-            () => SegmentedButton<JenisAkun>(
-              segments: const [
-                ButtonSegment(
-                  value: JenisAkun.cash,
-                  label: Text('Tunai'),
-                  icon: Icon(Icons.payments_rounded),
-                ),
-                ButtonSegment(
-                  value: JenisAkun.bank,
-                  label: Text('Bank'),
-                  icon: Icon(Icons.account_balance_rounded),
-                ),
-                ButtonSegment(
-                  value: JenisAkun.ewallet,
-                  label: Text('E-Wallet'),
-                  icon: Icon(Icons.smartphone_rounded),
-                ),
-              ],
-              selected: {pengontrol.jenis.value},
-              onSelectionChanged: (pilihan) {
-                pengontrol.jenis.value = pilihan.first;
-              },
-            ),
-          ),
-          const SizedBox(height: 16),
-          MasukanNominal(
-            controller: pengontrol.saldoAwalController,
-            autofocus: false,
-          ),
-          const SizedBox(height: 16),
-          Obx(
-            () => TombolUtama(
-              label: 'Simpan Akun',
-              ikon: Icons.check_rounded,
-              pemuatan: pengontrol.menyimpan.value,
-              onDitekan: () async {
-                final berhasil = await pengontrol.tambah(
-                  nama: pengontrol.namaController.text,
-                  jenis: pengontrol.jenis.value,
-                  saldoAwal: pengontrol.saldoAwal,
-                );
-                if (!berhasil) return;
-                Get.back();
-                tampilkanSnackbarDompetku(
-                  jenis: JenisSnackbar.sukses,
-                  judul: 'Berhasil',
-                  pesan:
-                      'Akun ${pengontrol.namaController.text.trim()} ditambahkan.',
-                );
-              },
-            ),
-          ),
-        ],
-      ),
+      FormEditNama(pengontrol: pengontrol, akun: akun),
     );
   }
 }
