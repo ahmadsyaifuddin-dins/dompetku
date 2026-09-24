@@ -209,54 +209,26 @@ class _HalamanOnboardingState
                   () => TombolUtama(
                     label: 'Mulai Menggunakan',
                     ikon: Icons.check_rounded,
-                    pemuatan:
-                        _pengontrol.menyimpan.value,
+                    pemuatan: _pengontrol.menyimpan.value,
                     onDitekan: () async {
-                      _tampilkanDebug.value =
-                          true;
+                      _tampilkanDebug.value = true;
 
-                      final berhasil =
-                          await Navigator.of(context)
-                              .push<bool>(
-                        PageRouteBuilder(
-                          opaque: false,
-                          pageBuilder: (
-                            konteks,
-                            animasi,
-                            energi,
-                          ) =>
-                              AnimasiProsesOnboarding(
-                            prosesSimpan:
-                                _pengontrol.simpan(),
-                          ),
-                          transitionsBuilder: (
-                            konteks,
-                            animasi,
-                            energi,
-                            child,
-                          ) =>
-                              FadeTransition(
-                            opacity: animasi,
-                            child: child,
-                          ),
-                        ),
-                      );
+                      // Jalankan fungsi simpan secara langsung agar tidak dipotong
+                      // oleh widget animasi pihak ketiga.
+                      final berhasil = await _pengontrol.simpan();
 
                       if (!mounted) return;
 
+                      // Validasi murni menggunakan hasil balikan dari controller
                       if (berhasil == true) {
                         DebugLog.saya.tulis(
-                          '✓ Proses selesai; '
-                          'menuju halaman utama.',
+                          '✓ Proses selesai; menuju halaman utama.',
                         );
-
-                        Get.offAllNamed(
-                          Rute.halamanInduk,
-                        );
+                        
+                        Get.offAllNamed(Rute.halamanInduk);
                       } else {
                         DebugLog.saya.tulis(
-                          '⚠ Proses selesai tanpa '
-                          'konfirmasi simpan.',
+                          '⚠ Proses ditolak karena galat atau validasi gagal.',
                         );
                       }
                     },
